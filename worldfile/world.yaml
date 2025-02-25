@@ -4,5 +4,9 @@ layers:
     map: "conestogo_office.yaml"
     color: [0.4, 0.4, 0.4, 1]
 models:
-  - name: turtlebot
-    model: "turtlebot.model.yaml"
+  - name: robot1
+    pose: [0, 0, 0]
+    model: "robot1.yaml"  
+  # - name: sensor
+  #   pose: [2, 0, 0]
+  #   model: "sensor.model.yaml"
