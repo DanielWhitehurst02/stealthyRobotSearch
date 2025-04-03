@@ -25,8 +25,8 @@ class Navgrid:
       
       grid = np.zeros(shape=(gridwd, gridhi))
 
-      print(grid.shape)
-      print(gridwd, gridhi)
+      # print(grid.shape)
+      # print(gridwd, gridhi)
 
       for i in range(gridwd):
         # print(i)
@@ -40,20 +40,26 @@ class Navgrid:
                 break
               
           else:
-            continue  # only executed if the inner loop did NOT break
+            continue  # if a black pixel is found go to next grid spot
           break
 
       # print(grid)
       self.grid = grid
 
+  # def updategrid(self, line):
+  #   self.grid = 
+
+
   def loadgrid(self):
-    tilemap = []
+    # tilemap = []
     for i in range(self.grid.shape[0]):
       for j in range(self.grid.shape[1]):
         if self.grid[i,j] == 1:
           color = WHITE
         elif self.grid[i,j] == 0:
-          color = BLACK 
+          color = BLACK
+        elif self.grid[i,j] == 2:
+          color = GREY 
         else:
           color = WHITE
 
@@ -64,6 +70,8 @@ class Navgrid:
 
         pygame.draw.rect(self.map, color, (self.width*i, self.width*j, self.width, self.width))
   
+  def get_grid(self):
+    return self.grid
   
   def drawgrid(self, surface):
      surface.blit(self.map,(0,0))

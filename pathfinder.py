@@ -20,6 +20,7 @@ class Pathfinder:
     self.select_surf = pygame.transform.scale(self.select_surf,(width,width))
     # self.select_surf.fill(GREEN)
     self.path = []
+   
 
   def updateGoal(self,goal):
     self.goal = goal
@@ -36,9 +37,9 @@ class Pathfinder:
       if current_cell_value == 1:
         rect = pygame.Rect((row*self.width,col*self.width),(self.width,self.width))
         screen.blit(self.select_surf,rect)
-  def create_path(self):
+  def create_path(self,start):
     #start
-    start_x, start_y = [1,2]
+    start_x, start_y = start[0], start[1]
     start = self.grid.node(start_x,start_y) 
 
     #end
@@ -64,3 +65,5 @@ class Pathfinder:
   def update(self, screen):
     self.draw_active_cell(screen)
     self.draw_path(screen)
+    
+
