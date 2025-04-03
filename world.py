@@ -51,7 +51,7 @@ background.set_at((0,0), RED)
 #Robot
 
 class Robot(pygame.sprite.Sprite):
-    def __init__(self, size, pathfinder):
+    def __init__(self, size, world):
         super().__init__()
         #image
         self.size = size
@@ -69,6 +69,9 @@ class Robot(pygame.sprite.Sprite):
         self.path = []
         self.collision_rects = []
         self.grid = []
+        self.viewdist = 50
+
+        self.world = world
         
 
     def get_coord(self):
@@ -112,7 +115,7 @@ class Robot(pygame.sprite.Sprite):
         self.grid = np.zeros(shape=(gridwd, gridhi))
         # print((gridwd, gridhi))
 
-    def get_vision(self):
+    def get_vision_grid(self):
         return self.grid
 
     def check_collisions(self):
@@ -121,7 +124,26 @@ class Robot(pygame.sprite.Sprite):
                 if rect.collidepoint(self.pos):
                   del self.collision_rects[0]
                   self.get_direction()
-    
+
+    def vision_check(self):
+        for theta in np.arange(0,360,1):
+            end_x, end_y = self.viewdist*math.cos(math.radians(theta)),self.viewdist*math.sin(math.radians(theta))
+            endp = [(int((end_x) + self.get_coord()[0])), (int((end_y) + self.get_coord()[1]))]
+            line = supercover_line(robot.get_coord(),endp)
+            
+            for i in range(len(line)):
+                x, y = line[i][1],line[i][0]
+                
+                if x >= self.grid.shape[0] or y >= self.grid.shape[1] or x<0: 
+                    continue
+
+                if self.world[x,y] == 0:
+                    self.grid[x,y] = 2
+                    break
+                else:
+                    self.grid[x,y] = 1
+                
+
     def update(self):
         
         self.check_collisions()
@@ -270,7 +292,7 @@ navgrid.loadgrid()
 # navgrid.drawgrid(background)
 
 pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
-robot = Robot(robwidth, pathfinder)
+robot = Robot(robwidth, navgrid.get_grid())
 
 robot.visionmmap(background)
 
@@ -308,19 +330,19 @@ while True:
     # navgrid.drawgrid(background)
     linemap = []
 
-    for theta in np.arange(0,360,1):
-        end_x, end_y = linedist*math.cos(math.radians(theta)),linedist*math.sin(math.radians(theta))
-        # print (int(end_x - robot.get_coord()[0]),int(end_y - robot.get_coord()[1]))
-        endp = [(int((end_x) + robot.get_coord()[0])), (int((end_y) + robot.get_coord()[1]))]
-        # line = list(bresenham(robot.get_coord()[0], robot.get_coord()[1], (int((end_x) + robot.get_coord()[0])), (int((end_y) + robot.get_coord()[1]))))
-        line = supercover_line(robot.get_coord(),endp)
-                #    for i in range(navgrid.grid.shape[0]):
-                #        for j in range(navgrid.grid.shape[1]):
-                #            for k in range(len(line)):
-                #             if line[k] == [i,j]:
-        # print(line)
-        for i in range(len(line)):
-            pygame.draw.rect(background, GREEN, (robwidth*line[i][1], robwidth*line[i][0], robwidth, robwidth))
+    # for theta in np.arange(0,360,1):
+    #     end_x, end_y = linedist*math.cos(math.radians(theta)),linedist*math.sin(math.radians(theta))
+    #     # print (int(end_x - robot.get_coord()[0]),int(end_y - robot.get_coord()[1]))
+    #     endp = [(int((end_x) + robot.get_coord()[0])), (int((end_y) + robot.get_coord()[1]))]
+    #     # line = list(bresenham(robot.get_coord()[0], robot.get_coord()[1], (int((end_x) + robot.get_coord()[0])), (int((end_y) + robot.get_coord()[1]))))
+    #     line = supercover_line(robot.get_coord(),endp)
+    #             #    for i in range(navgrid.grid.shape[0]):
+    #             #        for j in range(navgrid.grid.shape[1]):
+    #             #            for k in range(len(line)):
+    #             #             if line[k] == [i,j]:
+    #     # print(line)
+    #     for i in range(len(line)):
+    #         pygame.draw.rect(background, GREEN, (robwidth*line[i][1], robwidth*line[i][0], robwidth, robwidth))
 
     theta = 0
 
@@ -348,7 +370,7 @@ while True:
             pygame.draw.rect(background, RED_TRANS, (robwidth*line[i][1], robwidth*line[i][0], robwidth, robwidth))
   
         #    print(line[1][0])
-    
+    robot.vision_check()
     # screen.fill(white)
     screen.blit(background,(0,0))
     robot.drawmap(background)
