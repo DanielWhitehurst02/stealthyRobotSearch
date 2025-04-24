@@ -28,24 +28,6 @@ screen = pygame.display.set_mode((background.get_width(),background.get_height()
 pygame.display.set_caption("Stealthy Robot")
 clock = pygame.time.Clock()
 
-#Background
-
-# pxarray = pygame.PixelArray(background)
-# size = pxarray.shape
-# print(size)
-
-# currentcolor = pxarray[0,0]
-# print(pxarray[0,0])
-
-# print(white)
-
-# pygame.PixelArray.close(pxarray)
-
-
-##get pixel color
-# print(background.get_at((0,0)))
-# print(background.get_at((0,0)) == BLACK)
-
 
 background.set_at((0,0), RED) 
 
@@ -63,46 +45,30 @@ goal = (400,500)
 
 
 
-screen.blit(background,(0,0))
+# screen.blit(background,(0,0)) 
 # drawgrid( screen, grid, robwidth)
 navgrid.loadgrid()
 # navgrid.drawgrid(background)
 
-pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
-robot = Robot(robwidth, navgrid.get_grid())
 
-robot.visionmmap(background)
+pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
+robot = Robot(robwidth, navgrid.get_grid(), screen)
 
 print(navgrid.get_grid().shape)
-# scan_arc(navgrid.get_grid(),0,-1,1,0,10,robot.get_vision(),0)
 
-# linedist = 30
 
+navgrid.drawgrid(screen)
+
+robot.visionmmap(screen)
 
 pygame.display.update()
 
 while True:
     
-    # linemap = pygame.Surface((background.get_width(),background.get_height()))
-    
-    # scan_arc(navgrid.get_grid(),0,-1,1,0,10,robot.get_vision(),0)
-    
-    # navgrid.drawgrid(background)
+
     linemap = []
 
-    # for theta in np.arange(0,360,1):
-    #     end_x, end_y = linedist*math.cos(math.radians(theta)),linedist*math.sin(math.radians(theta))
-    #     # print (int(end_x - robot.get_coord()[0]),int(end_y - robot.get_coord()[1]))
-    #     endp = [(int((end_x) + robot.get_coord()[0])), (int((end_y) + robot.get_coord()[1]))]
-    #     # line = list(bresenham(robot.get_coord()[0], robot.get_coord()[1], (int((end_x) + robot.get_coord()[0])), (int((end_y) + robot.get_coord()[1]))))
-    #     line = supercover_line(robot.get_coord(),endp)
-    #             #    for i in range(navgrid.grid.shape[0]):
-    #             #        for j in range(navgrid.grid.shape[1]):
-    #             #            for k in range(len(line)):
-    #             #             if line[k] == [i,j]:
-    #     # print(line)
-    #     for i in range(len(line)):
-    #         pygame.draw.rect(background, GREEN, (robwidth*line[i][1], robwidth*line[i][0], robwidth, robwidth))
+    
 
     theta = 0
 
@@ -122,21 +88,30 @@ while True:
   
         #    print(line[1][0])
     # robot.vision_check()
-    # screen.fill(white)
-    screen.blit(background,(0,0))
-    # robot.drawmap(background)
-    # navgrid.drawgrid(background)
+
     
     # screen.blit()
-    robot.update(background)
+    navgrid.drawgrid(screen)
+    robot.update(screen)
+    # screen.fill(white)
+    # screen.blit(background,(0,0))
+    # robot.drawmap(background)
+
     pathfinder.update(screen)
    
     screen.blit(robot.image,robot.pos)
-    # if linemap:
-    #     screen.blit(background,(0,0))
+
+    # #testing transparency
+    # shape_surf = pygame.Surface(pygame.Rect(0, 0, 255, 127).size, pygame.SRCALPHA)
+    # # pygame.draw.rect(shape_surf, (55, 90, 140, 140), shape_surf.get_rect())
+    # shape_surf.fill((55, 90, 140, 140))
+    # screen.blit(shape_surf, (0, 0, 255, 127) )
+    # shape_surf.fill((128,0,0,128))
+    # screen.blit(shape_surf, (0, 0, 255, 127) )
+
+    
 
 
-
-    pygame.display.update()
+    pygame.display.flip()
     clock.tick(FPS)
     

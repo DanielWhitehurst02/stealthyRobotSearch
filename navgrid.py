@@ -11,7 +11,7 @@ class Navgrid:
       self.width = width
       self.background = background
       self.screen = screen
-      self.map = pygame.Surface((background.get_width(),background.get_height()))
+      self.map = pygame.Surface((background.get_width(),background.get_height()), pygame.SRCALPHA)
 
   def creategrid(self):
       pxwidth = self.background.get_width()
@@ -46,6 +46,17 @@ class Navgrid:
       # print(grid)
       self.grid = grid
 
+      surfgrid = np.zeros(shape=(gridwd, gridhi),dtype=(pygame.Surface))
+
+      for i in range(grid.shape[0]):
+        for j in range(grid.shape[1]):
+          # rectgrid[i,j] = (pygame.Rect(self.width*i, self.width*j, self.width, self.width))
+          surfgrid[i,j] = pygame.Surface(pygame.Rect((self.width*i, self.width*j, self.width, self.width)).size, pygame.SRCALPHA)
+
+      self.surfgrid = surfgrid
+
+    
+
   # def updategrid(self, line):
   #   self.grid = 
 
@@ -63,15 +74,23 @@ class Navgrid:
         else:
           color = WHITE
 
+        
+
         # tilemap[i,j] = pygame.Rect(self.width*i ,self.width*j, self.width, self.width)
 
         # pygame.Rect.update()
         # pygame.surface.blit
+        # pygame.draw.rect(self.surfgrid[i,j], color, self.surfgrid[i,j].get_rect())
+        self.surfgrid[i,j].fill(color)
+        self.map.blit(self.surfgrid[i,j], (self.width*i, self.width*j, self.width, self.width))
+        # pygame.draw.rect(self.map, color, self.rectgrid[i,j])
 
-        pygame.draw.rect(self.map, color, (self.width*i, self.width*j, self.width, self.width))
   
   def get_grid(self):
     return self.grid
   
   def drawgrid(self, surface):
-     surface.blit(self.map,(0,0))
+  
+    surface.blit(self.map,(0,0))
+
+  
