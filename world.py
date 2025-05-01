@@ -33,7 +33,7 @@ background.set_at((0,0), RED)
 
 #Robot
 
-robwidth: int = 5
+robwidth = ROBOT_WIDTH
 
 navgrid = Navgrid(robwidth,background,screen)
 
@@ -51,10 +51,10 @@ navgrid.loadgrid()
 # navgrid.drawgrid(background)
 
 
-pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
+# pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
 robot = Robot(robwidth, navgrid.get_grid(), screen)
 
-print(navgrid.get_grid().shape)
+print(navgrid.get_grid())
 
 
 navgrid.drawgrid(screen)
@@ -77,14 +77,14 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-           pathfinder.create_path(robot.get_coord())
+        # if event.type == pygame.MOUSEBUTTONDOWN:
+        #    pathfinder.create_path(robot.get_coord())
 
-           robot.set_path(pathfinder.path)
+        #    robot.set_path(pathfinder.path)
 
-           mouse_pos = pygame.mouse.get_pos()
-           end_x,end_y = int(mouse_pos[1]/robwidth),int(mouse_pos[0]/robwidth)
-           linemap = pygame.Surface((background.get_width(),background.get_height()))
+        #    mouse_pos = pygame.mouse.get_pos()
+        #    end_x,end_y = int(mouse_pos[1]/robwidth),int(mouse_pos[0]/robwidth)
+        #    linemap = pygame.Surface((background.get_width(),background.get_height()))
   
         #    print(line[1][0])
     # robot.vision_check()
@@ -92,12 +92,14 @@ while True:
     
     # screen.blit()
     navgrid.drawgrid(screen)
+
+
     robot.update(screen)
     # screen.fill(white)
     # screen.blit(background,(0,0))
     # robot.drawmap(background)
 
-    pathfinder.update(screen)
+    # pathfinder.update(screen)
    
     screen.blit(robot.image,robot.pos)
 

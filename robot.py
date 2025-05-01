@@ -4,6 +4,8 @@ import numpy as np
 
 from settings import *
 from supercover_line import supercover_line
+from frontier import Frontier
+from pathfinder import Pathfinder
 
 class Robot(pygame.sprite.Sprite):
     def __init__(self, size, world, background):
@@ -34,6 +36,12 @@ class Robot(pygame.sprite.Sprite):
 
         self.k = 0
 
+        self.frontier = Frontier(self.grid)
+        self.pathfinder = Pathfinder(self.grid,size)
+
+        self.goal = False
+        self.goalnum = 0
+
 
     def get_coord(self):
         col = self.rect.centery // self.size
@@ -44,6 +52,7 @@ class Robot(pygame.sprite.Sprite):
         self.path = path
         self.create_collision_rects()
         self.get_direction()
+        
     
     def create_collision_rects(self):
         if self.path:
@@ -56,15 +65,19 @@ class Robot(pygame.sprite.Sprite):
                 self.collision_rects.append(rect)
         else:
             self.collision_rects = []
+            print("no collision rects")
 
     def get_direction(self):
         if self.collision_rects:
             start = pygame.math.Vector2(self.pos)
             end = pygame.math.Vector2(self.collision_rects[0].center)
+            # print(str(start) + " to End " +str(end))
             self.direction = (end-start).normalize()
         else:
             self.direction = pygame.math.Vector2(0,0)
             self.path = []
+
+            print(self.direction)
     
     def visionmmap(self, background):
         pxwidth = background.get_width()
@@ -96,8 +109,10 @@ class Robot(pygame.sprite.Sprite):
 
     def check_collisions(self):
         if self.collision_rects:
+            
             for rect in self.collision_rects:
                 if rect.collidepoint(self.pos):
+                #   print("real")
                   del self.collision_rects[0]
                   self.get_direction()
 
@@ -122,40 +137,26 @@ class Robot(pygame.sprite.Sprite):
                 else:
                     self.grid[x,y] = 1
                     self.gridnew.append([1,x,y])
+
+        pos = self.get_coord()
+        # print(pos)
+        # self.grid[pos[1]-1,pos[0]] = 1
+        self.grid[pos[1],pos[0]] = 1
+        self.gridnew.append([1,pos[1],pos[0]])
+        # self.grid[pos[1]+1,pos[0]] = 1
+        # self.grid[pos[1],pos[0]-1] = 1
+        # self.grid[pos[1],pos[0]+1] = 1
+        # self.grid[pos[1]-1,pos[0]-1] = 1
+        # self.grid[pos[1]+1,pos[0]+1] = 1
+        # self.grid[pos[1]+1,pos[0]-1] = 1
+        # self.grid[pos[1]-1,pos[0]+1] = 1
+        # print(pos)
+                
+    def drawmap(self, background,front):
         
-        # self.gridbuffer
-                
-    def drawmap(self, background):
-        # gridnewbuffer = self.gridnew
-        # print((background.get_width(),background.get_height()))
-        # tilemap = []
-
-        # for i in range(len(self.grid)):
-
-        # for i in range(len(self.gridbuffer2)):
-        #     if self.gridbuffer2[i] != self.gridnew[i]:
-        #         print("difference")
-                
-
-
-
-        # for i in range(self.grid.shape[0]):
-        #     for j in range(self.grid.shape[1]):
-        #             # print("grey")
-        #         color = (128, 128, 128,25)
-        #         # elif self.grid[i,j] == 1:
-        #         #     color = WHITE
-        #         # elif self.grid[i,j] == 2:
-        #         #     color = BLACK 
-        #         # else:
-        #         #     color = WHITE
-
-
-        #         self.surfgrid[i,j].fill(color)
-        #         self.map.blit(self.surfgrid[i,j],(self.size*i, self.size*j, self.size, self.size))
-
-        # print(self.surfgrid[200,20].get_at((0,0)))
-
+        # self.frontier.map_update(self.grid)
+        # front = self.frontier.get_frontiers()
+        
         # print(len(self.gridnew))
         if len(self.gridbuffer) != 0:
             for i in range(len(self.gridbuffer)):
@@ -188,47 +189,75 @@ class Robot(pygame.sprite.Sprite):
             self.surfgrid[x,y].fill(color)
             self.map.blit(self.surfgrid[x,y],(self.size*x, self.size*y, self.size, self.size))
 
+        for i in range(len(front)):
+            color = BLUE
+            x, y = front[i][0], front[i][1]
 
-       
-
-        # for i in range(self.grid.shape[0]):
-        #     for j in range(self.grid.shape[1]):
-        #         if self.grid[i,j] == 0:
-        #             # print("grey")
-        #             color = (128, 128, 128, 127)
-        #         elif self.grid[i,j] == 1:
-        #             color = WHITE
-        #         elif self.grid[i,j] == 2:
-        #             color = BLACK 
-        #         # else:
-        #         #     color = WHITE
-
-        #         # tilemap[i,j] = pygame.Rect(self.width*i ,self.width*j, self.width, self.width)
-
-        #         # pygame.Rect.update()
-        #         # pygame.surface.blit
-
-        #         # pygame.draw.rect(map, color, (self.size*i, self.size*j, self.size, self.size))
-        #         # rect = pygame.Rect(self.size*i, self.size*j, self.size, self.size)
-
-        #         shape_surf = pygame.Surface(pygame.Rect((self.size*i, self.size*j, self.size, self.size)).size, pygame.SRCALPHA)
-        #         # pygame.draw.rect(shape_surf, color, shape_surf.get_rect())
-        #         shape_surf.fill(color)
-        #         self.map.blit(shape_surf, (self.size*i, self.size*j, self.size, self.size))
-        # self.gridbuffer = gridnewbuffer
-
-
+            self.surfgrid[x,y].fill(color)
+            self.map.blit(self.surfgrid[x,y],(self.size*x, self.size*y, self.size, self.size))
 
         background.blit(self.map,(0,0))
 
     def update(self,background):
+
+            
+
         
-        self.check_collisions()
  
         self.vision_check()
+
+        # print(self.grid[self.get_coord()[0]-1,self.get_coord()[1]+1])
+        # front = []
+                
+        if not self.goal:
+
+            self.frontier.map_update(self.grid)
+
+            # front = self.frontier.get_frontiers()
+            self.front = self.frontier.get_frontiers_active(self.gridnew)
+            # self.currentgoal = front[self.goalnum]
+
+            # print(len(front))
+            # print(front)
+
+            if self.front:
+                # self.currentgoal = front[self.goalnum]
+                
+                self.currentgoal = self.front[0]
+
+                if (abs(self.get_coord()[1] - self.currentgoal[0]) < 1) and (abs(self.get_coord()[0] - self.currentgoal[1] ) < 1):
+                    
+                    self.currentgoal = self.front[1]
+                # self.currentgoal = [10,10]
+            else:
+                self.front = self.frontier.get_frontiers()
+                if self.front:
+                    self.currentgoal = self.front[0]
+ 
+            self.pathfinder.updateMap(self.grid)
+            # self.pathfinder.updateGoal(front[self.goalnum])
+            path = self.pathfinder.create_path(self.get_coord(),self.currentgoal)
+            # print(path)
+            self.set_path(path)
+            # print("currentgoalnum ")
+            # print(self.goalnum)
+            self.goalnum += 1
+            if self.path:
+                print("next goal")
+                self.goal = True
+        elif ((abs(self.get_coord()[1] - self.currentgoal[0]) < 1) and (abs(self.get_coord()[0] - self.currentgoal[1] )< 1)): ### change to collision rect
+                # print("next goal")
+                self.goal = False
+                print("goal reached")
         
-        self.drawmap(background)
+        print(self.goal)
+
+        self.check_collisions()
+
+        self.drawmap(background,self.front)
+        self.pathfinder.update(background)
         
+        print(str(self.currentgoal)+str(self.get_coord())+str(self.direction)+str(self.speed) + str((self.get_coord()[1] - self.currentgoal[0]))+str( ((self.get_coord()[0] - self.currentgoal[1] ))))
 
         self.pos += self.direction * self.speed
         self.rect.center = self.pos
