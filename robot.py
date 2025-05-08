@@ -72,7 +72,12 @@ class Robot(pygame.sprite.Sprite):
             start = pygame.math.Vector2(self.pos)
             end = pygame.math.Vector2(self.collision_rects[0].center)
             # print(str(start) + " to End " +str(end))
-            self.direction = (end-start).normalize()
+            if ((end[0]-start[0]) == 0) and ((end[1]-start[1]) == 0):
+                self.direction = pygame.math.Vector2(0,0)
+                self.path = []
+                return
+            else:
+                self.direction = (end-start).normalize()
         else:
             self.direction = pygame.math.Vector2(0,0)
             self.path = []
@@ -138,11 +143,11 @@ class Robot(pygame.sprite.Sprite):
                     self.grid[x,y] = 1
                     self.gridnew.append([1,x,y])
 
-        pos = self.get_coord()
-        # print(pos)
-        # self.grid[pos[1]-1,pos[0]] = 1
-        self.grid[pos[1],pos[0]] = 1
-        self.gridnew.append([1,pos[1],pos[0]])
+        # pos = self.get_coord()
+        # # print(pos)
+        # # self.grid[pos[1]-1,pos[0]] = 1
+        # self.grid[pos[1],pos[0]] = 1
+        # self.gridnew.append([1,pos[1],pos[0]])
         # self.grid[pos[1]+1,pos[0]] = 1
         # self.grid[pos[1],pos[0]-1] = 1
         # self.grid[pos[1],pos[0]+1] = 1
@@ -188,6 +193,22 @@ class Robot(pygame.sprite.Sprite):
 
             self.surfgrid[x,y].fill(color)
             self.map.blit(self.surfgrid[x,y],(self.size*x, self.size*y, self.size, self.size))
+
+        ### actual grid visual
+
+        # for i in range(self.grid.shape[0]):
+        #     for j in range(self.grid.shape[1]):
+        #         if self.grid[i,j] == 1:
+        #             color = WHITE
+        #         elif self.grid[i,j] == 0:
+        #             color = BLACK
+        #         # elif self.grid[i,j] == 2:
+        #         #     color = BLACK 
+        #         else:
+        #             color = GREY
+
+        #         self.surfgrid[i,j].fill(color)
+        #         self.map.blit(self.surfgrid[i,j], (self.size*i, self.size*j, self.size, self.size))
 
         for i in range(len(front)):
             color = BLUE
@@ -250,14 +271,14 @@ class Robot(pygame.sprite.Sprite):
                 self.goal = False
                 print("goal reached")
         
-        print(self.goal)
+        # print(self.goal)
 
         self.check_collisions()
 
         self.drawmap(background,self.front)
         self.pathfinder.update(background)
         
-        print(str(self.currentgoal)+str(self.get_coord())+str(self.direction)+str(self.speed) + str((self.get_coord()[1] - self.currentgoal[0]))+str( ((self.get_coord()[0] - self.currentgoal[1] ))))
+        # print(str(self.currentgoal)+str(self.get_coord())+str(self.direction)+str(self.speed) + str((self.get_coord()[1] - self.currentgoal[0]))+str( ((self.get_coord()[0] - self.currentgoal[1] ))))
 
         self.pos += self.direction * self.speed
         self.rect.center = self.pos

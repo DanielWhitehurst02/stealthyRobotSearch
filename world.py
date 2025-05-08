@@ -34,28 +34,20 @@ background.set_at((0,0), RED)
 #Robot
 
 robwidth = ROBOT_WIDTH
-
 navgrid = Navgrid(robwidth,background,screen)
-
-navgrid.creategrid()
+# navgrid.creategrid()
 
 # grid = creategrid(background,robwidth)
-
-goal = (400,500)
-
-
 
 # screen.blit(background,(0,0)) 
 # drawgrid( screen, grid, robwidth)
 navgrid.loadgrid()
 # navgrid.drawgrid(background)
 
-
 # pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
 robot = Robot(robwidth, navgrid.get_grid(), screen)
 
 print(navgrid.get_grid())
-
 
 navgrid.drawgrid(screen)
 

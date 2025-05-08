@@ -12,6 +12,7 @@ class Navgrid:
       self.background = background
       self.screen = screen
       self.map = pygame.Surface((background.get_width(),background.get_height()), pygame.SRCALPHA)
+      self.creategrid()
 
   def creategrid(self):
       pxwidth = self.background.get_width()

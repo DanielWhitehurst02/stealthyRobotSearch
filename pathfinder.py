@@ -36,10 +36,10 @@ class Pathfinder:
         else:
           self.matrix[i,j] = 0
       
-    self.matrix[5,5] = 1
+    # self.matrix[5,5] = 1
 
     # self.matrix = matrix
-    self.grid = Grid(matrix= matrix)
+    self.grid = Grid(matrix= self.matrix)
 
   def draw_active_cell(self, screen):
     mouse_pos = pygame.mouse.get_pos()
@@ -65,9 +65,11 @@ class Pathfinder:
     # end_x,end_y = int(mouse_pos[1]/self.width),int(mouse_pos[0]/self.width)
     end = self.grid.node(end_x, end_y)
 
+    ##seeing diagonals between walls as ok to move through
+
     #path
     finder = AStarFinder(diagonal_movement= DiagonalMovement.always)
-    # print(self.grid.grid_str())
+    print(self.grid.grid_str())
     # print(self.matrix)
     self.path, _ = finder.find_path(start,end,self.grid)
     # print(self.path)
