@@ -9,7 +9,7 @@ FPS = 120
 WORLD = "worldfile/officebuilding.png"
 
 #Robot Params
-ROBOT_WIDTH: int = 4
+ROBOT_WIDTH: int = 8
 ROBOT_START_X = 20
 ROBOT_START_Y = 20
 SPEED = 2
