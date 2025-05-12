@@ -42,6 +42,8 @@ class Robot(pygame.sprite.Sprite):
         self.goal = False
         self.goalnum = 0
 
+        self.observers_known = []
+
 
     def get_coord(self):
         col = self.rect.centery // self.size
@@ -98,7 +100,7 @@ class Robot(pygame.sprite.Sprite):
         # print((gridwd, gridhi))
         
 
-        self.surfgrid = np.zeros(shape=(gridwd, gridhi),dtype=(pygame.Surface))
+        self.surfgrid = np.zeros(shape=(gridwd, gridhi),dtype=(pygame.Surface), order="F")
         
         for i in range(self.grid.shape[0]):
             for j in range(self.grid.shape[1]):
@@ -139,23 +141,14 @@ class Robot(pygame.sprite.Sprite):
                     self.grid[x,y] = 2
                     self.gridnew.append([2,x,y])
                     break
+                elif self.world[x,y] == 3: # Observer is found
+                    self.grid[x,y] = 3
+                    self.gridnew.append([3,x,y])
+                    
                 else:
                     self.grid[x,y] = 1
                     self.gridnew.append([1,x,y])
 
-        # pos = self.get_coord()
-        # # print(pos)
-        # # self.grid[pos[1]-1,pos[0]] = 1
-        # self.grid[pos[1],pos[0]] = 1
-        # self.gridnew.append([1,pos[1],pos[0]])
-        # self.grid[pos[1]+1,pos[0]] = 1
-        # self.grid[pos[1],pos[0]-1] = 1
-        # self.grid[pos[1],pos[0]+1] = 1
-        # self.grid[pos[1]-1,pos[0]-1] = 1
-        # self.grid[pos[1]+1,pos[0]+1] = 1
-        # self.grid[pos[1]+1,pos[0]-1] = 1
-        # self.grid[pos[1]-1,pos[0]+1] = 1
-        # print(pos)
                 
     def drawmap(self, background,front):
         
@@ -190,6 +183,9 @@ class Robot(pygame.sprite.Sprite):
                 color = WHITE
             elif self.gridnew[i][0] == 2:
                 color = BLACK
+            elif self.gridnew[i][0] == 3:
+                color = YELLOW
+                ##update vision drawing from here
 
             self.surfgrid[x,y].fill(color)
             self.map.blit(self.surfgrid[x,y],(self.size*x, self.size*y, self.size, self.size))
@@ -210,6 +206,7 @@ class Robot(pygame.sprite.Sprite):
         #         self.surfgrid[i,j].fill(color)
         #         self.map.blit(self.surfgrid[i,j], (self.size*i, self.size*j, self.size, self.size))
 
+        ## Draw frontiers
         for i in range(len(front)):
             color = BLUE
             x, y = front[i][0], front[i][1]
@@ -220,11 +217,7 @@ class Robot(pygame.sprite.Sprite):
         background.blit(self.map,(0,0))
 
     def update(self,background):
-
-            
-
         
- 
         self.vision_check()
 
         # print(self.grid[self.get_coord()[0]-1,self.get_coord()[1]+1])

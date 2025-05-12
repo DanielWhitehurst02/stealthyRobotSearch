@@ -18,6 +18,10 @@ ROBOT_FOV = 360
 
 FRONT_THRESHOLD = 2
 
+#Observers
+OB_NUMBER = 3
+OB_VIEW_DIST = 100
+VISION_COST = 0.5    ## percentage
 
 #colours
 RED = (255, 0, 0,255)
@@ -25,6 +29,7 @@ RED_TRANS = (255,0,0,1)
 GREEN = (0, 255, 0,255)
 BLUE = (0, 255, 255,255)
 YELLOW = (255, 255, 0,255)
+YELLOW_TRANS = (255, 255, 0,1)
 WHITE = (255, 255, 255,255)
 BLACK = (0, 0, 0,255)
 PURPLE = (128, 0, 128,255)

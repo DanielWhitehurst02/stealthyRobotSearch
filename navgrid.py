@@ -94,4 +94,10 @@ class Navgrid:
   
     surface.blit(self.map,(0,0))
 
+  def drawgrid_extra(self, surface, extra):
+    self.map.blit(extra,(0,0))
+    surface.blit(self.map,(0,0))
+    
+
+
   

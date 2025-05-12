@@ -53,6 +53,7 @@ class Pathfinder:
       if current_cell_value == 1:
         rect = pygame.Rect((row*self.width,col*self.width),(self.width,self.width))
         screen.blit(self.select_surf,rect)
+        
   def create_path(self,start,goal):
     #start
     start_x, start_y = int(start[0]), int(start[1])
@@ -69,7 +70,7 @@ class Pathfinder:
 
     #path
     finder = AStarFinder(diagonal_movement= DiagonalMovement.always)
-    print(self.grid.grid_str())
+    # print(self.grid.grid_str())
     # print(self.matrix)
     self.path, _ = finder.find_path(start,end,self.grid)
     # print(self.path)
@@ -87,7 +88,7 @@ class Pathfinder:
           points.append((y,x))
 
           if len(points) >= 2:
-            pygame.draw.lines(screen,BLUE,False,points,5)
+            pygame.draw.lines(screen,GREEN,False,points,5)
 
   def update(self, screen):
     # self.draw_active_cell(screen)
