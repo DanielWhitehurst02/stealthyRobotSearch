@@ -48,7 +48,9 @@ navgrid.loadgrid()
 # navgrid.drawgrid(background)
 ob_temp = 0
 run = False
+placing = True
 ob_pos = []
+pos_temp = []
 
 
 # pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
@@ -63,7 +65,9 @@ navgrid.drawgrid(screen)
 pygame.display.update()
 
 while True:
+    
     while run == False:
+        
         navgrid.drawgrid(screen)
         util.draw_active_cell(navgrid.get_grid(),screen)
         # pygame.draw.rect(screen, BLUE, [200*ROBOT_WIDTH,200*ROBOT_WIDTH ,ROBOT_WIDTH,ROBOT_WIDTH])
@@ -79,21 +83,33 @@ while True:
                 mouse_pos = pygame.mouse.get_pos()
                 pos_x,pos_y = int(mouse_pos[1]/robwidth),int(mouse_pos[0]/robwidth)
                 
-                ob_pos.append([pos_x,pos_y,0])
-                
+                if placing:
+                    pos_temp = [pos_x,pos_y]
+                    placing = False
+                else:
+                    angle = util.getAngle(pos_temp,[pos_x,pos_y])
+                    ob_pos.append([pos_temp[0],pos_temp[1],angle])
+                    placing = True
+
+                # ob_pos.append([pos_temp[0],pos_temp[1],90])
+
+                # util.drawtriangle(screen,mouse_pos,YELLOW)
+
+
                 #Place observers
-                if ob_temp == (OB_NUMBER - 1):
+                if ob_temp == (OB_NUMBER):
                     observer = Observers(navgrid.get_grid(),90,ob_pos,YELLOW,screen)
-                    
-                    robot = Robot(robwidth, observer.add_observers_tomap(navgrid.get_grid()), screen)
+                    vision = observer.vision()
+                    robot = Robot(robwidth, observer.add_observers_tomap(navgrid.get_grid()), screen,ob_pos,vision)
                     robot.visionmmap(screen)
-                    observer.vision()
+                    
                     observer.def_vision_map()
                     observer.draw_vision(screen,YELLOW_TRANS)
 
                     run = True
                 else:
-                    ob_temp += 1
+                    if placing == True:
+                        ob_temp += 1
         pygame.display.flip()
     else:
 
@@ -131,7 +147,7 @@ while True:
         
         robot.update(screen)
 
-        
+        observer.draw_vision(screen,YELLOW_TRANS)
 
 
         # screen.fill(white)

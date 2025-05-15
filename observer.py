@@ -26,10 +26,13 @@ class Observers(pygame.sprite.Sprite):
 
     def vision(self):
 
-        self.visionmap = np.zeros([2,self.map.shape[0], self.map.shape[1]])
+        # self.visionmap = np.zeros([2,self.map.shape[0], self.map.shape[1]])
+        self.visionmap = []
 
         for i in range(len(self.pos_grid)):
-            print("current ang: "+str(i))
+            visionmaptemp = np.zeros([self.map.shape[0], self.map.shape[1]])
+            # print("current ang: "+str(i))
+            self.visionmap.append([])
             for theta in np.arange(0,self.fov,1):
                 theta_adjusted = theta +self.pos_grid[i][2]
                 # theta_adjusted = theta
@@ -46,8 +49,15 @@ class Observers(pygame.sprite.Sprite):
                     if self.map[x,y] == 0: #if wall is found stop searching the lines
                         break
                     else:
-                        self.visionmap[0,x,y] += (OB_VIEW_DIST-j)*0.1*VISION_COST  #TODO map these to each robot
-                        self.visionmap[1,x,y] =  i  ### TODO make this hold multiple robots (maybe new variable)
+                        visionmaptemp[x,y] = (OB_VIEW_DIST-j)*0.1*VISION_COST  #TODO make this a list for each robot
+                        # self.visionmap[1,x,y] =  i  ### TODO make this hold multiple robots (maybe new variable)
+
+
+            for j in range(visionmaptemp.shape[0]):
+                for k in range(visionmaptemp.shape[1]):
+                    vision_val = visionmaptemp[j,k]
+                    if vision_val > 0:    
+                        self.visionmap[i].append([j,k,vision_val])
         # print(self.visionmap)
         return self.visionmap
 
@@ -64,23 +74,33 @@ class Observers(pygame.sprite.Sprite):
 
     def def_vision_map(self):
         self.surfgrid = []
-        print(str(self.visionmap.shape[1]) + str(self.visionmap.shape[2]))
-
-        for i in range(self.visionmap.shape[1]):
-            for j in range(self.visionmap.shape[2]):
-                if self.visionmap[0,i,j] > 0:
-                    # self.surfgrid.append([i,j,self.visionmap[i,j]])
-                    self.surfgrid.append([pygame.Surface(pygame.Rect((ROBOT_WIDTH*i, ROBOT_WIDTH*j, ROBOT_WIDTH, ROBOT_WIDTH)).size, pygame.SRCALPHA),i,j,self.visionmap[0,i,j]])
+        # print(str(self.visionmap.shape[1]) + str(self.visionmap.shape[2]))
+        # print(self.visionmap)
+        # for i in range(self.visionmap.shape[1]):
+        #     for j in range(self.visionmap.shape[2]):
+        print(len(self.visionmap))
+        for i in range(len(self.visionmap)):
+                # print(i)
+                # print(self.visionmap[i][2])
+                for j in range(len(self.visionmap[i])):
+                    # print(self.visionmap[i][j][2])
+                    x,y = self.visionmap[i][j][0], self.visionmap[i][j][1]
+                    if self.visionmap[i][j][2] > 0:
+                        # self.surfgrid.append([i,j,self.visionmap[i,j]])
+                        self.surfgrid.append([pygame.Surface(pygame.Rect((ROBOT_WIDTH*x, ROBOT_WIDTH*y, ROBOT_WIDTH, ROBOT_WIDTH)).size, pygame.SRCALPHA),x,y])
 
 
     
     def draw_vision(self, background, color):
         # print(self.surfgrid)
+        
         for i in range(len(self.surfgrid)):
+            
             self.surfgrid[i][0].fill(color)
             self.background.blit(self.surfgrid[i][0],(self.surfgrid[i][1]*ROBOT_WIDTH, self.surfgrid[i][2]*ROBOT_WIDTH, ROBOT_WIDTH, ROBOT_WIDTH))
 
         background.blit(self.background,(0,0))
+        self.surfgrid.clear()
         return self.background
             
 

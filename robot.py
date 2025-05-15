@@ -8,7 +8,7 @@ from frontier import Frontier
 from pathfinder import Pathfinder
 
 class Robot(pygame.sprite.Sprite):
-    def __init__(self, size, world, background):
+    def __init__(self, size, world, background, observer_pos, observers_vision_map):
         super().__init__()
         #image
         
@@ -41,8 +41,10 @@ class Robot(pygame.sprite.Sprite):
 
         self.goal = False
         self.goalnum = 0
-
+        
+        self.observer_pos = observer_pos
         self.observers_known = []
+        self.observers_vision = observers_vision_map
 
 
     def get_coord(self):
@@ -55,6 +57,8 @@ class Robot(pygame.sprite.Sprite):
         self.create_collision_rects()
         self.get_direction()
         
+    def set_observervision(self, observers_vision_map):
+        self.observers_vision = observers_vision_map
     
     def create_collision_rects(self):
         if self.path:
@@ -139,7 +143,7 @@ class Robot(pygame.sprite.Sprite):
 
                 if self.world[x,y] == 0: #if wall is found stop searching the lines
                     self.grid[x,y] = 2
-                    self.gridnew.append([2,x,y])
+                    self.gridnew.append([2,x,y])            ### [value, x, y]
                     break
                 elif self.world[x,y] == 3: # Observer is found
                     self.grid[x,y] = 3
@@ -149,7 +153,37 @@ class Robot(pygame.sprite.Sprite):
                     self.grid[x,y] = 1
                     self.gridnew.append([1,x,y])
 
-                
+    def check_observers(self,x,y):
+        new_observer = False
+        found_num = 0
+        if len(self.observers_known) > 0:       ##else check its a new observer
+            
+            for i in range(len(self.observer_pos)):
+                o_x = self.observer_pos[i][0]
+                o_y = self.observer_pos[i][1]
+                if o_x == x and o_y == y:
+                    for j in range(len(self.observers_known)):
+                        if self.observers_known[j][0] == i:
+                            return new_observer, found_num
+                    new_observer = True
+                    found_num = i
+                    self.observers_known.append([i,x,y,self.observer_pos[i][2]]) 
+
+                   
+        else:                            ##if we dont know where any observers are 
+            for i in range(len(self.observer_pos)):     
+                o_x = self.observer_pos[i][0]
+                o_y = self.observer_pos[i][1]
+                if o_x == x and o_y == y:
+                    self.observers_known.append([i,x,y,self.observer_pos[i][2]])
+                    new_observer = True
+                    
+
+        return new_observer, found_num
+    # def drawobservers(self):
+
+
+
     def drawmap(self, background,front):
         
         # self.frontier.map_update(self.grid)
@@ -187,8 +221,24 @@ class Robot(pygame.sprite.Sprite):
                 color = YELLOW
                 ##update vision drawing from here
 
+
+
+
             self.surfgrid[x,y].fill(color)
+            
+            
+            # if self.check_observers(x,y):
+            #     for j in range(len(self.observers_known)):
+            #         ob = self.observers_known[j][0]
+            #         for k in range(self.observers_vision.shape[0]):
+            #             for l in range(self.observers_vision.shape[1]):
+            #                 x1,y1 = self.observers_vision[0,1], self.observers_vision[0,2]
+            #                 if self.observers_vision[1,x,y] == ob:
+            #                     color = YELLOW_TRANS
+            #                     self.surfgrid[x1,y1].fill(color)
+            
             self.map.blit(self.surfgrid[x,y],(self.size*x, self.size*y, self.size, self.size))
+                                
 
         ### actual grid visual
 
