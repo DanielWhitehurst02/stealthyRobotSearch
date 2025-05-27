@@ -15,13 +15,14 @@ class Robot(pygame.sprite.Sprite):
         self.size = size
         self.image = pygame.Surface([size,size])
         self.image.fill(RED)
-        self.rect = self.image.get_rect(center=(ROBOT_START_X,ROBOT_START_Y))
+        self.rect = self.image.get_rect(center=(ROBOT_START_X*size,ROBOT_START_Y*size))
         
         #movement
         # self.pos = pygame.math.Vector2(ROBOT_START_X,ROBOT_START_Y)
-        self.pos = self.rect.center
+        self.pos = [ROBOT_START_X,ROBOT_START_Y]
         self.speed = SPEED
-        self.direction = pygame.math.Vector2(0,0)
+        # self.direction = pygame.math.Vector2(0,0)
+        self.direction = [0,0]
 
         #path
         self.path = []
@@ -69,7 +70,8 @@ class Robot(pygame.sprite.Sprite):
     def set_path(self, path):
         self.path = path
         self.create_collision_rects()
-        self.get_direction()
+        # self.get_direction()
+        self.get_direction_snapped()
         
     def set_observervision(self, observers_vision_map):
         self.observers_vision = observers_vision_map
@@ -77,12 +79,27 @@ class Robot(pygame.sprite.Sprite):
     def create_collision_rects(self):
         if self.path:
             self.collision_rects = []
+            # print(self.path)
+            # for point in self.path: 
+            #     # x = (point.x *self.size) + (self.size/2)
+            #     # y = (point.y *self.size) + (self.size/2)
+            #     x = (point.x * self.size)
+            #     y = (point.y * self.size)
 
-            for point in self.path:
-                x = (point.x *self.size) + (self.size/2)
-                y = (point.y *self.size) + (self.size/2)
-                rect = pygame.Rect((y-(self.size/4),x-(self.size/4)),((self.size/2),(self.size/2)))
-                self.collision_rects.append(rect)
+            #     # rect = pygame.Rect((y-(self.size/4),x-(self.size/4)),((self.size/2),(self.size/2)))
+            #     rect = pygame.Rect((y-(self.size),x-(self.size)),((self.size),(self.size)))
+            #     self.collision_rects.append(rect)
+
+            for point in self.path: 
+                y = (point.x)
+                x = (point.y)
+
+                # print("point in path: " + str(x) +" , "+ str(y))
+
+                # # rect = pygame.Rect((y-(self.size/4),x-(self.size/4)),((self.size/2),(self.size/2)))
+                # rect = pygame.Rect((y-(self.size),x-(self.size)),((self.size),(self.size)))
+                self.collision_rects.append([x,y])
+
         else:
             self.collision_rects = []
             print("no collision rects")
@@ -102,8 +119,43 @@ class Robot(pygame.sprite.Sprite):
             self.direction = pygame.math.Vector2(0,0)
             self.path = []
 
-            print(self.direction)
-    
+
+        print("self dircetion: " +str(self.direction))
+
+    def get_direction_snapped(self):
+        # start_x,start_y = self.pos[0], self.pos[1]
+        if self.collision_rects:
+            end = self.collision_rects[0]
+            
+            # self.direction[0] = end[0] - int(start_x/self.size)
+            # self.direction[1] = end[1] - int(start_y/self.size)
+
+            self.direction[0] = end[0] - self.pos[0]
+            self.direction[1] = end[1] - self.pos[1]
+
+            # print ( "end: " +str(end) + " pos: " + str(self.pos) + " Direction: " + str(self.direction))
+            # self.direction = end - self.pos
+        else:
+            self.direction= [0,0]
+
+    def check_collisions(self):
+        if self.collision_rects:
+                # start_x,start_y = int(self.pos[0]/self.size), int(self.pos[1]/self.size)
+            # for rect in self.collision_rects:
+                # if rect.collidepoint(self.pos):
+                # #   print("real")
+                #   del self.collision_rects[0]
+                #   self.get_direction()
+                # if [start_x,start_y] == self.collision_rects[0]:
+                # print(self.pos == self.collision_rects[0])
+                # print(self.pos)
+                # print(self.collision_rects[0])
+                if self.pos == self.collision_rects[0]:
+                    del self.collision_rects[0]
+                    # self.get_direction_snapped()
+
+
+
     def visionmmap(self, background):
         pxwidth = background.get_width()
         pxheight = background.get_height()
@@ -132,14 +184,7 @@ class Robot(pygame.sprite.Sprite):
     def get_vision_grid(self):
         return self.grid
 
-    def check_collisions(self):
-        if self.collision_rects:
-            
-            for rect in self.collision_rects:
-                if rect.collidepoint(self.pos):
-                #   print("real")
-                  del self.collision_rects[0]
-                  self.get_direction()
+    
 
     def vision_check(self):
 
@@ -195,6 +240,8 @@ class Robot(pygame.sprite.Sprite):
             for j in range(self.grid.shape[1]):
                 if self.grid[i,j] == 1:
                     self.map_combined[i,j] = 1
+                elif self.grid[i,j] == 0:
+                    self.map_combined[i,j] = 200
                 else:
                     self.map_combined[i,j] = 0
         
@@ -393,7 +440,7 @@ class Robot(pygame.sprite.Sprite):
                 # print("goal reached")
         
         
-
+        self.get_direction_snapped()
         self.check_collisions()
 
         self.drawmap(background,self.front)
@@ -410,6 +457,12 @@ class Robot(pygame.sprite.Sprite):
         # print(self.time_seen)
         # print(self.number_times_seen)
 
+    
 
-        self.pos += self.direction * self.speed
-        self.rect.center = self.pos
+        # self.pos += (self.direction * self.speed)
+        # print(str(self.pos)+" direct: " + str(self.direction))
+        self.pos[0] += self.direction[0]
+        self.pos[1] += self.direction[1]
+        self.rect.center = [self.pos[0]*self.size,self.pos[1]*self.size]
+        # self.rect.center = [int(self.pos[0]/self.size)*self.size,int(self.pos[1]/self.size)*self.size]
+        # print(self.rect.center)

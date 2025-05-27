@@ -157,7 +157,7 @@ while True:
 
         # pathfinder.update(screen)
     
-        screen.blit(robot.image,robot.pos)
+        screen.blit(robot.image,robot.rect.center)
 
         # #testing transparency
         # shape_surf = pygame.Surface(pygame.Rect(0, 0, 255, 127).size, pygame.SRCALPHA)

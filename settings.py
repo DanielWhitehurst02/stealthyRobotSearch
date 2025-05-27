@@ -1,7 +1,7 @@
 #Setup
 # WIDTH = 1280
 # HEIGHT = 720
-FPS = 120
+FPS = 30
 
 # WORLD = "worldfile/conestogo_office.png"
 # WORLD = "worldfile/maze1.png"
@@ -11,8 +11,8 @@ WORLD = "worldfile/openwarehouse.png"
 
 #Robot Params
 ROBOT_WIDTH: int = 4
-ROBOT_START_X = 20
-ROBOT_START_Y = 20
+ROBOT_START_X = 10
+ROBOT_START_Y = 10
 SPEED = 2
 ROBOT_VISION_LENGTH = 100
 ROBOT_FOV = 360
