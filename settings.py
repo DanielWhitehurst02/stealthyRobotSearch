@@ -6,10 +6,11 @@ FPS = 120
 # WORLD = "worldfile/conestogo_office.png"
 # WORLD = "worldfile/maze1.png"
 # WORLD = "worldfile/simpleenv.png"
-WORLD = "worldfile/officebuilding.png"
+# WORLD = "worldfile/officebuilding.png"
+WORLD = "worldfile/openwarehouse.png"
 
 #Robot Params
-ROBOT_WIDTH: int = 8
+ROBOT_WIDTH: int = 4
 ROBOT_START_X = 20
 ROBOT_START_Y = 20
 SPEED = 2

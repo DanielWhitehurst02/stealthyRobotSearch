@@ -27,15 +27,23 @@ class Pathfinder:
 
   def updateMap(self,matrix):
     # matrix_temp = np.zeros(shape=(matrix.shape[0],matrix.shape[1]))
-    self.matrix = np.zeros(shape=(matrix.shape[0],matrix.shape[1]))
+    # self.matrix = np.zeros(shape=(matrix.shape[0],matrix.shape[1]))
+    self.matrix = matrix
     
-    for i in range(matrix.shape[0]):
-      for j in range(matrix.shape[1]):
-        if matrix[i,j] == 1:
-          self.matrix[i,j] = 1
-        else:
-          self.matrix[i,j] = 0
-      
+    # for i in range(matrix.shape[0]):
+    #   for j in range(matrix.shape[1]):
+    #     if matrix[i,j] == 1:
+    #       self.matrix[i,j] = 1
+    #     else:
+    #       self.matrix[i,j] = 0
+    
+    #   for i in range(len(visionmatrix)):
+    #     if visionmatrix[i] != 0:
+    #       for j in range(len(visionmatrix[i])):
+    #         x,y = visionmatrix[i][j][0], visionmatrix[i][j][1]
+    #         if visionmatrix[i][j][2] > 0:
+    #           self.matrix[x,y] += visionmatrix[i][j][2]
+
     # self.matrix[5,5] = 1
 
     # self.matrix = matrix

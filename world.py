@@ -88,17 +88,18 @@ while True:
                     placing = False
                 else:
                     angle = util.getAngle(pos_temp,[pos_x,pos_y])
-                    ob_pos.append([pos_temp[0],pos_temp[1],angle])
+                    ob_pos.append([pos_temp[0],pos_temp[1],angle-45])
                     placing = True
 
                 # ob_pos.append([pos_temp[0],pos_temp[1],90])
-
+                # ob_pos = [[1, 27, 7.253194612725338], [33, 1, 15.255118703057782], [33, 122, -77.27564431457763]]
                 # util.drawtriangle(screen,mouse_pos,YELLOW)
 
 
                 #Place observers
                 if ob_temp == (OB_NUMBER):
-                    observer = Observers(navgrid.get_grid(),90,ob_pos,YELLOW,screen)
+                    print(ob_pos)
+                    observer = Observers(navgrid.get_grid(),360,ob_pos,PURPLE,screen)
                     vision = observer.vision()
                     robot = Robot(robwidth, observer.add_observers_tomap(navgrid.get_grid()), screen,ob_pos,vision)
                     robot.visionmmap(screen)

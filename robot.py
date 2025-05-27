@@ -34,17 +34,31 @@ class Robot(pygame.sprite.Sprite):
 
         self.map = pygame.Surface((background.get_width(),background.get_height()),pygame.SRCALPHA)
 
-        self.k = 0
-
         self.frontier = Frontier(self.grid)
         self.pathfinder = Pathfinder(self.grid,size)
 
         self.goal = False
         self.goalnum = 0
         
+        #Observers
+
         self.observer_pos = observer_pos
+        print(self.observer_pos)
         self.observers_known = []
+
+        for i in range(len(observer_pos)):
+            self.observers_known.append(False)
+
         self.observers_vision = observers_vision_map
+        self.observers_vision_known = []
+        for i in range(len(observers_vision_map)):
+            self.observers_vision_known.append(0)
+
+        ## Evaluation ##
+        self.percent_explored = 0
+        self.number_times_seen = 0
+        self.time_seen = 0
+        self.prev_seen = False
 
 
     def get_coord(self):
@@ -154,35 +168,42 @@ class Robot(pygame.sprite.Sprite):
                     self.gridnew.append([1,x,y])
 
     def check_observers(self,x,y):
-        new_observer = False
-        found_num = 0
-        if len(self.observers_known) > 0:       ##else check its a new observer
-            
-            for i in range(len(self.observer_pos)):
-                o_x = self.observer_pos[i][0]
-                o_y = self.observer_pos[i][1]
-                if o_x == x and o_y == y:
-                    for j in range(len(self.observers_known)):
-                        if self.observers_known[j][0] == i:
-                            return new_observer, found_num
-                    new_observer = True
-                    found_num = i
-                    self.observers_known.append([i,x,y,self.observer_pos[i][2]]) 
+        for i in range(len(self.observer_pos)):
+                o_x = self.observer_pos[i][1]
+                o_y = self.observer_pos[i][0]
 
-                   
-        else:                            ##if we dont know where any observers are 
-            for i in range(len(self.observer_pos)):     
-                o_x = self.observer_pos[i][0]
-                o_y = self.observer_pos[i][1]
+                # print(x,y,o_x,o_y)
                 if o_x == x and o_y == y:
-                    self.observers_known.append([i,x,y,self.observer_pos[i][2]])
-                    new_observer = True
-                    
+                    self.observers_known[i] = True
 
-        return new_observer, found_num
+        self.update_vision_map(self.observers_known)
+        # return new_observer, found_num
+        # for i in range(len(self.visionmap)):
     # def drawobservers(self):
 
+    def update_vision_map(self,observers_know):
+        for i in range(len(self.observers_vision)):
+            if observers_know[i] == True:
+                self.observers_vision_known[i] = self.observers_vision[i]
+                
+        # print(self.observers_vision_known)
+        # 
+    def get_map_combined(self):
+        self.map_combined = np.zeros(shape=(self.grid.shape[0], self.grid.shape[1]))
 
+        for i in range(self.grid.shape[0]):
+            for j in range(self.grid.shape[1]):
+                if self.grid[i,j] == 1:
+                    self.map_combined[i,j] = 1
+                else:
+                    self.map_combined[i,j] = 0
+        
+        for i in range(len(self.observers_vision_known)):
+            if self.observers_vision_known[i] != 0:
+                for j in range(len(self.observers_vision_known[i])):
+                    x,y = self.observers_vision_known[i][j][0], self.observers_vision_known[i][j][1]
+                    if self.observers_vision_known[i][j][2] > 0:
+                        self.map_combined[x,y] += self.observers_vision_known[i][j][2]  
 
     def drawmap(self, background,front):
         
@@ -218,9 +239,9 @@ class Robot(pygame.sprite.Sprite):
             elif self.gridnew[i][0] == 2:
                 color = BLACK
             elif self.gridnew[i][0] == 3:
-                color = YELLOW
+                color = PURPLE
                 ##update vision drawing from here
-
+                self.check_observers(x,y)
 
 
 
@@ -266,12 +287,47 @@ class Robot(pygame.sprite.Sprite):
 
         background.blit(self.map,(0,0))
 
+
+    ### Evaluation ####
+
+    def get_percent_explored(self):
+        unexploredtiles = 0
+        for i in range(self.grid.shape[0]):
+            for j in range(self.grid.shape[1]):
+                if self.grid[i,j] == 0:
+                    unexploredtiles +=1
+        
+        self.percent_explored =  1 - (unexploredtiles)/(self.grid.shape[0]*self.grid.shape[1])
+
+        return self.percent_explored 
+    
+    def get_number_times_seen(self,x,y):
+        # print(self.prev_seen)
+        if self.map_combined[y,x] > 1 and self.prev_seen == False:
+            
+            self.number_times_seen += 1
+
+            self.prev_seen = True
+        elif self.map_combined[y,x] <= 1:
+            self.prev_seen = False
+    
+    def get_time_seen(self,x,y):
+        # print(self.map_combined[y,x])
+        if self.map_combined[y,x] > 1:
+            self.time_seen += 1
+
+    
+    ### Update Loop ###
+
     def update(self,background):
         
         self.vision_check()
+        self.get_map_combined()
 
         # print(self.grid[self.get_coord()[0]-1,self.get_coord()[1]+1])
         # front = []
+
+        pos = self.get_coord()
                 
         if not self.goal:
 
@@ -284,44 +340,76 @@ class Robot(pygame.sprite.Sprite):
             # print(len(front))
             # print(front)
 
-            if self.front:
+            if not self.front:
                 # self.currentgoal = front[self.goalnum]
                 
-                self.currentgoal = self.front[0]
+                # self.currentgoal = self.front[0]
 
-                if (abs(self.get_coord()[1] - self.currentgoal[0]) < 1) and (abs(self.get_coord()[0] - self.currentgoal[1] ) < 1):
+                # if (abs(pos[1] - self.currentgoal[0]) < 1) and (abs(pos[0] - self.currentgoal[1] ) < 1):
                     
-                    self.currentgoal = self.front[1]
+                    # self.currentgoal = self.front[0]
                 # self.currentgoal = [10,10]
-            else:
+            # else:
+            
                 self.front = self.frontier.get_frontiers()
-                if self.front:
-                    self.currentgoal = self.front[0]
- 
-            self.pathfinder.updateMap(self.grid)
+
+
+            if self.front:
+                dist = math.dist([pos[1],pos[0]],self.front[0])
+                short_i = 0
+                for i in range(len(self.front)):
+                    temp_dist = math.dist([pos[1],pos[0]],self.front[i])
+                    if temp_dist < dist:
+                        dist = temp_dist
+                        short_i = i
+                    # print(str(temp_dist) +" Index: "+str(i))
+                
+
+                # print(short_i)
+                self.currentgoal = self.front[short_i]
+
+            
+            self.pathfinder.updateMap(self.map_combined)
+            # self.pathfinder.updateMap(self.grid, [])
             # self.pathfinder.updateGoal(front[self.goalnum])
-            path = self.pathfinder.create_path(self.get_coord(),self.currentgoal)
+            path = self.pathfinder.create_path(pos,self.currentgoal)
             # print(path)
             self.set_path(path)
             # print("currentgoalnum ")
             # print(self.goalnum)
+
+            #evaluation metrics
+
+            print("Percentage Explored " + str(self.get_percent_explored()) +" Time seen: " + str(self.time_seen) + " Number of times seen: " + str(self.number_times_seen) )
+            # print(self.observers_known)
+
             self.goalnum += 1
             if self.path:
-                print("next goal")
+                # print("next goal")
                 self.goal = True
-        elif ((abs(self.get_coord()[1] - self.currentgoal[0]) < 1) and (abs(self.get_coord()[0] - self.currentgoal[1] )< 1)): ### change to collision rect
+        elif ((abs(pos[1] - self.currentgoal[0]) < 1) and (abs(pos[0] - self.currentgoal[1] )< 1)): ### change to collision rect
                 # print("next goal")
                 self.goal = False
-                print("goal reached")
+                # print("goal reached")
         
-        # print(self.goal)
+        
 
         self.check_collisions()
 
         self.drawmap(background,self.front)
         self.pathfinder.update(background)
         
+        #evaluation metrics
+
         # print(str(self.currentgoal)+str(self.get_coord())+str(self.direction)+str(self.speed) + str((self.get_coord()[1] - self.currentgoal[0]))+str( ((self.get_coord()[0] - self.currentgoal[1] ))))
+        # print(self.pos)
+        x, y = pos[0],pos[1]
+
+        self.get_time_seen(x,y)
+        self.get_number_times_seen(x,y)
+        # print(self.time_seen)
+        # print(self.number_times_seen)
+
 
         self.pos += self.direction * self.speed
         self.rect.center = self.pos
