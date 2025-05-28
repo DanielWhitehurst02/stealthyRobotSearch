@@ -40,6 +40,7 @@ class Robot(pygame.sprite.Sprite):
 
         self.goal = False
         self.goalnum = 0
+        self.steps = 0
         
         #Observers
 
@@ -189,6 +190,13 @@ class Robot(pygame.sprite.Sprite):
     def vision_check(self):
 
         self.gridnew.clear()
+
+        x,y = self.pos[0],self.pos[1]
+
+        if self.world[x,y] == 1:
+            self.grid[x,y] = 1
+
+
         for theta in np.arange(0,self.fov,1):
             end_x, end_y = self.viewdist*math.cos(math.radians(theta)),self.viewdist*math.sin(math.radians(theta))
             endp = [(int((end_x) + self.get_coord()[0])), (int((end_y) + self.get_coord()[1]))]
@@ -211,6 +219,8 @@ class Robot(pygame.sprite.Sprite):
                 else:
                     self.grid[x,y] = 1
                     self.gridnew.append([1,x,y])
+        
+        
 
     def check_observers(self,x,y):
         for i in range(len(self.observer_pos)):
@@ -375,19 +385,23 @@ class Robot(pygame.sprite.Sprite):
         # front = []
 
         pos = self.get_coord()
-                
-        if not self.goal:
 
-            self.frontier.map_update(self.grid)
+        
+                
+        if not self.goal or self.steps >= UPDATE_STEPS:
+
+            self.frontier.map_update(self.grid,self.gridnew)
 
             # front = self.frontier.get_frontiers()
-            self.front = self.frontier.get_frontiers_active(self.gridnew)
+            # self.front = self.frontier.get_frontiers_active(self.gridnew)
+            self.front = self.frontier.get_frontiers()
+            # print(self.front)
             # self.currentgoal = front[self.goalnum]
 
             # print(len(front))
             # print(front)
 
-            if not self.front:
+            # if not self.front:
                 # self.currentgoal = front[self.goalnum]
                 
                 # self.currentgoal = self.front[0]
@@ -398,22 +412,25 @@ class Robot(pygame.sprite.Sprite):
                 # self.currentgoal = [10,10]
             # else:
             
-                self.front = self.frontier.get_frontiers()
+                # self.front = self.frontier.get_frontiers()
 
 
             if self.front:
-                dist = math.dist([pos[1],pos[0]],self.front[0])
+                dist = math.dist([pos[1],pos[0]],[self.front[0][0],self.front[0][1]])
                 short_i = 0
                 for i in range(len(self.front)):
-                    temp_dist = math.dist([pos[1],pos[0]],self.front[i])
+                    temp_dist = math.dist([pos[1],pos[0]],[self.front[i][0],self.front[i][1]])
                     if temp_dist < dist:
                         dist = temp_dist
                         short_i = i
                     # print(str(temp_dist) +" Index: "+str(i))
                 
 
-                # print(short_i)
+                self.currentfront = short_i
                 self.currentgoal = self.front[short_i]
+            
+        
+            # print(self.currentgoal)
 
             
             self.pathfinder.updateMap(self.map_combined)
@@ -434,9 +451,12 @@ class Robot(pygame.sprite.Sprite):
             if self.path:
                 # print("next goal")
                 self.goal = True
+
+            self.steps = 0
         elif ((abs(pos[1] - self.currentgoal[0]) < 1) and (abs(pos[0] - self.currentgoal[1] )< 1)): ### change to collision rect
                 # print("next goal")
                 self.goal = False
+                # del self.front[self.currentfront]
                 # print("goal reached")
         
         
@@ -457,7 +477,7 @@ class Robot(pygame.sprite.Sprite):
         # print(self.time_seen)
         # print(self.number_times_seen)
 
-    
+        self.steps += 1
 
         # self.pos += (self.direction * self.speed)
         # print(str(self.pos)+" direct: " + str(self.direction))

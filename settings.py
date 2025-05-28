@@ -6,8 +6,8 @@ FPS = 30
 # WORLD = "worldfile/conestogo_office.png"
 # WORLD = "worldfile/maze1.png"
 # WORLD = "worldfile/simpleenv.png"
-# WORLD = "worldfile/officebuilding.png"
-WORLD = "worldfile/openwarehouse.png"
+WORLD = "worldfile/officebuilding.png"
+# WORLD = "worldfile/openwarehouse.png"
 
 #Robot Params
 ROBOT_WIDTH: int = 4
@@ -17,8 +17,8 @@ SPEED = 2
 ROBOT_VISION_LENGTH = 100
 ROBOT_FOV = 360
 ROBOT_PATHFINDING_AVOID_VISION = True
-
 FRONT_THRESHOLD = 2
+UPDATE_STEPS = 50
 
 #Observers
 OB_NUMBER = 3
