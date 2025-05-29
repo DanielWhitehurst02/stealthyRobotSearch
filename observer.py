@@ -5,7 +5,7 @@ import numpy as np
 from settings import *
 from supercover_line import supercover_line
 
-## TODO adjust values
+
 
 class Observers(pygame.sprite.Sprite):
     def __init__(self, map, fov, pos ,color, background):   

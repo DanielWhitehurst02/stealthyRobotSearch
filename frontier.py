@@ -8,6 +8,9 @@ from settings import *
 
 #need visited cells calculated
 
+##TODO calculate the vision cost of a frontier
+##TODO calculate info gain from frontier
+
 class Frontier:
     def __init__(self, map):
         self.map = map
