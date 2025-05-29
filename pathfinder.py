@@ -65,23 +65,40 @@ class Pathfinder:
   def create_path(self,start,goal):
     #start
     start_x, start_y = int(start[0]), int(start[1])
-    start = self.grid.node(start_x,start_y) 
+    
     
     end_x, end_y = int(goal[1]),int(goal[0])
-    # print("Start: "+ str(start_x) + " " + str(start_y) + " End: " + str(end_x) +' '+ str(end_y))
+
+    end_val = self.matrix[end_y][end_x]
+    # start_val = self.matrix[start_y][start_x]
+
+    # print("Start: "+ str(start_x) + " " + str(start_y) + " Value at start: " + str(start_val) + " End: " + str(end_x) +' '+ str(end_y) + " Value at goal: " + str(end_val))
     # #end
+
     # mouse_pos = pygame.mouse.get_pos()
     # end_x,end_y = int(mouse_pos[1]/self.width),int(mouse_pos[0]/self.width)
+
+    # if start_val <= 0:
+    #   self.matrix[start_x][start_y] = 1
+    #   self.grid = Grid(matrix= self.matrix)
+
+    if end_val <= 0:
+      self.matrix[end_y][end_x] = 1
+      self.grid = Grid(matrix= self.matrix)
+
+    start = self.grid.node(start_x,start_y) 
     end = self.grid.node(end_x, end_y)
 
     ##seeing diagonals between walls as ok to move through
 
     #path
     finder = AStarFinder(diagonal_movement= DiagonalMovement.always)
+    # finder = AStarFinder()
     # print(self.grid.grid_str())
     # print(self.matrix)
-    self.path, _ = finder.find_path(start,end,self.grid)
+    self.path, runs = finder.find_path(start,end,self.grid)
     # print(self.path)
+    # print(runs)
 
     return self.path
   

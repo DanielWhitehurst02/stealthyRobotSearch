@@ -10,20 +10,22 @@ WORLD = "worldfile/officebuilding.png"
 # WORLD = "worldfile/openwarehouse.png"
 
 #Robot Params
-ROBOT_WIDTH: int = 4
+ROBOT_WIDTH: int = 8
 ROBOT_START_X = 10
 ROBOT_START_Y = 10
 SPEED = 2
 ROBOT_VISION_LENGTH = 100
 ROBOT_FOV = 360
 ROBOT_PATHFINDING_AVOID_VISION = True
-FRONT_THRESHOLD = 2
-UPDATE_STEPS = 50
+FRONT_THRESHOLD = 1
+WALL_THRESHOLD = 4
+
+UPDATE_STEPS = 200
 
 #Observers
 OB_NUMBER = 3
 OB_VIEW_DIST = 100
-VISION_COST = 0.5    ## percentage
+VISION_COST = 0.2    ## percentage
 
 #colours
 RED = (255, 0, 0,255)

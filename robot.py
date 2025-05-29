@@ -139,6 +139,18 @@ class Robot(pygame.sprite.Sprite):
         else:
             self.direction= [0,0]
 
+    def closest_frontier(self, pos): ## TODO calculate closest frontier by path dist
+        dist = math.dist([pos[1],pos[0]],[self.front[0][0],self.front[0][1]])
+        short_i = 0
+        for i in range(len(self.front)):
+            temp_dist = math.dist([pos[1],pos[0]],[self.front[i][0],self.front[i][1]])
+            if temp_dist < dist:
+                dist = temp_dist
+                short_i = i
+        
+        return short_i, dist
+                    # print(str(temp_dist) +" Index: "+str(i))
+
     def check_collisions(self):
         if self.collision_rects:
                 # start_x,start_y = int(self.pos[0]/self.size), int(self.pos[1]/self.size)
@@ -220,7 +232,7 @@ class Robot(pygame.sprite.Sprite):
                     self.grid[x,y] = 1
                     self.gridnew.append([1,x,y])
         
-        
+    
 
     def check_observers(self,x,y):
         for i in range(len(self.observer_pos)):
@@ -242,7 +254,7 @@ class Robot(pygame.sprite.Sprite):
                 self.observers_vision_known[i] = self.observers_vision[i]
                 
         # print(self.observers_vision_known)
-        # 
+
     def get_map_combined(self):
         self.map_combined = np.zeros(shape=(self.grid.shape[0], self.grid.shape[1]))
 
@@ -251,16 +263,18 @@ class Robot(pygame.sprite.Sprite):
                 if self.grid[i,j] == 1:
                     self.map_combined[i,j] = 1
                 elif self.grid[i,j] == 0:
-                    self.map_combined[i,j] = 200
+                    self.map_combined[i,j] = -1 ##-1 for unknown cell
                 else:
                     self.map_combined[i,j] = 0
         
-        for i in range(len(self.observers_vision_known)):
-            if self.observers_vision_known[i] != 0:
-                for j in range(len(self.observers_vision_known[i])):
-                    x,y = self.observers_vision_known[i][j][0], self.observers_vision_known[i][j][1]
-                    if self.observers_vision_known[i][j][2] > 0:
-                        self.map_combined[x,y] += self.observers_vision_known[i][j][2]  
+        if ROBOT_PATHFINDING_AVOID_VISION:
+
+            for i in range(len(self.observers_vision_known)):
+                if self.observers_vision_known[i] != 0:
+                    for j in range(len(self.observers_vision_known[i])):
+                        x,y = self.observers_vision_known[i][j][0], self.observers_vision_known[i][j][1]
+                        if self.observers_vision_known[i][j][2] > 0:
+                            self.map_combined[x,y] += self.observers_vision_known[i][j][2]  
 
     def drawmap(self, background,front):
         
@@ -375,8 +389,10 @@ class Robot(pygame.sprite.Sprite):
 
     
     ### Update Loop ###
+    ## TODO update frontiers when observer is seen
 
-    def update(self,background):
+
+    def update(self,background): 
         
         self.vision_check()
         self.get_map_combined()
@@ -385,7 +401,8 @@ class Robot(pygame.sprite.Sprite):
         # front = []
 
         pos = self.get_coord()
-
+        
+        # print("Value at pos: " + str(self.map_combined[pos[1]][pos[0]]))
         
                 
         if not self.goal or self.steps >= UPDATE_STEPS:
@@ -413,21 +430,39 @@ class Robot(pygame.sprite.Sprite):
             # else:
             
                 # self.front = self.frontier.get_frontiers()
-
-
             if self.front:
-                dist = math.dist([pos[1],pos[0]],[self.front[0][0],self.front[0][1]])
-                short_i = 0
-                for i in range(len(self.front)):
-                    temp_dist = math.dist([pos[1],pos[0]],[self.front[i][0],self.front[i][1]])
-                    if temp_dist < dist:
-                        dist = temp_dist
-                        short_i = i
-                    # print(str(temp_dist) +" Index: "+str(i))
+                findfrontier = True
+                while findfrontier:
+                # dist = math.dist([pos[1],pos[0]],[self.front[0][0],self.front[0][1]])
+                # short_i = 0
+                # for i in range(len(self.front)):
+                #     temp_dist = math.dist([pos[1],pos[0]],[self.front[i][0],self.front[i][1]])
+                #     if temp_dist < dist:
+                #         dist = temp_dist
+                #         short_i = i
+                #     # print(str(temp_dist) +" Index: "+str(i))
                 
+                    short_i, dist = self.closest_frontier(pos)
+                
+                    if dist <= 0:
+                        del self.front[short_i]
+                        # short_i, dist = self.closest_frontier(pos)
+                        findfrontier = True
+                    else:
+                        findfrontier = False
+
+
+
 
                 self.currentfront = short_i
                 self.currentgoal = self.front[short_i]
+                
+            else:
+                # randx, randy = np.random.randint(-1,1),np.random.randint(-1,1)
+                # self.currentgoal = [pos[1]+randx,pos[0]+randy]
+                self.currentgoal = [pos[1],pos[0]]
+
+           
             
         
             # print(self.currentgoal)
@@ -438,6 +473,12 @@ class Robot(pygame.sprite.Sprite):
             # self.pathfinder.updateGoal(front[self.goalnum])
             path = self.pathfinder.create_path(pos,self.currentgoal)
             # print(path)
+            if not path:
+                del self.front[short_i]
+                short_i, dist = self.closest_frontier(pos)
+                self.currentgoal = self.front[short_i]
+                self.pathfinder.create_path(pos, self.currentgoal)
+
             self.set_path(path)
             # print("currentgoalnum ")
             # print(self.goalnum)

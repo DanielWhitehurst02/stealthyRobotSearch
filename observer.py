@@ -5,6 +5,8 @@ import numpy as np
 from settings import *
 from supercover_line import supercover_line
 
+## TODO adjust values
+
 class Observers(pygame.sprite.Sprite):
     def __init__(self, map, fov, pos ,color, background):   
         #input pos array of [x,y, orientation]
@@ -49,7 +51,11 @@ class Observers(pygame.sprite.Sprite):
                     if self.map[x,y] == 0: #if wall is found stop searching the lines
                         break
                     else:
-                        visionmaptemp[x,y] = (OB_VIEW_DIST-j)*0.1*VISION_COST  #TODO make this a list for each robot
+                        # visionmaptemp[x,y] = (OB_VIEW_DIST-j)*pow(2,VISION_COST)  #TODO make this a list for each robot
+                        # visionmaptemp[x,y] = pow((VISION_COST*(-OB_VIEW_DIST+j)),2)
+                        visionmaptemp[x,y] = pow(math.e,VISION_COST*(OB_VIEW_DIST-j))
+                        print("index: " + str(j) + " visioncost: " + str(visionmaptemp[x,y]))
+                        # print(OB_VIEW_DIST-j)
                         # self.visionmap[1,x,y] =  i  ### TODO make this hold multiple robots (maybe new variable)
 
 
