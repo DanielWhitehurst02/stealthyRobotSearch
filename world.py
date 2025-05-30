@@ -2,6 +2,7 @@
 import pygame
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 from sys import exit
@@ -92,7 +93,11 @@ while True:
                     placing = True
 
                 # ob_pos.append([pos_temp[0],pos_temp[1],90])
+                ## office
                 # ob_pos = [[1, 27, 7.253194612725338], [33, 1, 15.255118703057782], [33, 122, -77.27564431457763]]
+
+                ## Warehouse1
+                ob_pos = [[29, 4, -45.0], [50, 73, -45.0], [66, 15, -45.0]]
                 # util.drawtriangle(screen,mouse_pos,YELLOW)
 
 
@@ -112,6 +117,7 @@ while True:
                     if placing == True:
                         ob_temp += 1
         pygame.display.flip()
+
     else:
 
 
@@ -146,7 +152,7 @@ while True:
 
         # navgrid.drawgrid_extra(screen,vision_back)
         
-        robot.update(screen)
+        finish = robot.update(screen)
 
         observer.draw_vision(screen,YELLOW_TRANS)
 
@@ -167,7 +173,10 @@ while True:
         # shape_surf.fill((128,0,0,128))
         # screen.blit(shape_surf, (0, 0, 255, 127) )
 
-        
+        if finish:
+            print("environment explored, plotting results")
+            pygame.quit()
+            exit()
 
 
         pygame.display.flip()

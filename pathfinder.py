@@ -4,6 +4,8 @@ import numpy as np
 
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
+from pathfinding.finder.dijkstra import DijkstraFinder
+# from pathfinding.finder.bi_a_star import BiAStarFinder
 from pathfinding.core.diagonal_movement import DiagonalMovement
 
 from settings import *
@@ -70,7 +72,7 @@ class Pathfinder:
     end_x, end_y = int(goal[1]),int(goal[0])
 
     end_val = self.matrix[end_y][end_x]
-    # start_val = self.matrix[start_y][start_x]
+    start_val = self.matrix[start_y][start_x]
 
     # print("Start: "+ str(start_x) + " " + str(start_y) + " Value at start: " + str(start_val) + " End: " + str(end_x) +' '+ str(end_y) + " Value at goal: " + str(end_val))
     # #end
@@ -92,11 +94,13 @@ class Pathfinder:
     ##seeing diagonals between walls as ok to move through
 
     #path
-    finder = AStarFinder(diagonal_movement= DiagonalMovement.always)
+    # finder = AStarFinder(diagonal_movement= DiagonalMovement.always)
+    finder = DijkstraFinder(diagonal_movement= DiagonalMovement.always, max_runs=10000)
+    # finder = BiAStarFinder(diagonal_movement= DiagonalMovement.always)
     # finder = AStarFinder()
     # print(self.grid.grid_str())
     # print(self.matrix)
-    self.path, runs = finder.find_path(start,end,self.grid)
+    self.path, _ = finder.find_path(start,end,self.grid)
     # print(self.path)
     # print(runs)
 

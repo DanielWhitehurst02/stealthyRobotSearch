@@ -52,9 +52,9 @@ class Observers(pygame.sprite.Sprite):
                         break
                     else:
                         # visionmaptemp[x,y] = (OB_VIEW_DIST-j)*pow(2,VISION_COST)  #TODO make this a list for each robot
-                        # visionmaptemp[x,y] = pow((VISION_COST*(-OB_VIEW_DIST+j)),2)
-                        visionmaptemp[x,y] = pow(math.e,VISION_COST*(OB_VIEW_DIST-j))
-                        print("index: " + str(j) + " visioncost: " + str(visionmaptemp[x,y]))
+                        visionmaptemp[x,y] = pow((VISION_COST*(-OB_VIEW_DIST+j)),2)
+                        # visionmaptemp[x,y] = pow(math.e,VISION_COST*(OB_VIEW_DIST-j))
+                        # print("index: " + str(j) + " visioncost: " + str(visionmaptemp[x,y]))
                         # print(OB_VIEW_DIST-j)
                         # self.visionmap[1,x,y] =  i  ### TODO make this hold multiple robots (maybe new variable)
 
