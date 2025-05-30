@@ -62,6 +62,8 @@ class Robot(pygame.sprite.Sprite):
         self.time_seen = 0
         self.prev_seen = False
 
+        self.observer_seen = False
+
 
     def get_coord(self):
         col = self.rect.centery // self.size
@@ -230,7 +232,6 @@ class Robot(pygame.sprite.Sprite):
         return self.grid
    
     def vision_check(self):
-
         self.gridnew.clear()
 
         x,y = self.pos[0],self.pos[1]
@@ -257,21 +258,36 @@ class Robot(pygame.sprite.Sprite):
                 elif self.world[x,y] == 3: # Observer is found
                     self.grid[x,y] = 3
                     self.gridnew.append([3,x,y])
-                    
+                    self.check_observers(x,y)
+                        
+
+
                 else:
                     self.grid[x,y] = 1
-                    self.gridnew.append([1,x,y])           
+                    self.gridnew.append([1,x,y])  
+                
+        # return observer_seen
 
     def check_observers(self,x,y):
+
         for i in range(len(self.observer_pos)):
                 o_x = self.observer_pos[i][1]
                 o_y = self.observer_pos[i][0]
 
                 # print(x,y,o_x,o_y)
                 if o_x == x and o_y == y:
+
+                    if not self.observers_known[i]:
+                        if ROBOT_PATHFINDING_AVOID_VISION:
+                            # print("new observer found")
+                            self.observer_seen = True
+
                     self.observers_known[i] = True
 
+
+
         self.update_vision_map(self.observers_known)
+
         # return new_observer, found_num
         # for i in range(len(self.visionmap)):
     # def drawobservers(self):
@@ -291,7 +307,7 @@ class Robot(pygame.sprite.Sprite):
                 if self.grid[i,j] == 1:
                     self.map_combined[i,j] = 1
                 elif self.grid[i,j] == 0:
-                    self.map_combined[i,j] = 20000000 ##-1 for unknown cell
+                    self.map_combined[i,j] = 50 ##-1 for unknown cell
                 else:
                     self.map_combined[i,j] = 0
         
@@ -340,7 +356,7 @@ class Robot(pygame.sprite.Sprite):
             elif self.gridnew[i][0] == 3:
                 color = PURPLE
                 ##update vision drawing from here
-                self.check_observers(x,y)
+                # self.check_observers(x,y)
 
 
 
@@ -358,6 +374,7 @@ class Robot(pygame.sprite.Sprite):
             #                     self.surfgrid[x1,y1].fill(color)
             
             self.map.blit(self.surfgrid[x,y],(self.size*x, self.size*y, self.size, self.size))
+
                                 
 
         ### actual grid visual
@@ -422,6 +439,7 @@ class Robot(pygame.sprite.Sprite):
 
     def update(self,background): 
         finished = False
+        self.observer_seen = False
         self.vision_check()
         self.get_map_combined()
 
@@ -430,11 +448,17 @@ class Robot(pygame.sprite.Sprite):
 
         pos = self.get_coord()
         
+        # self.observer_seen = True
         # print("Value at pos: " + str(self.map_combined[pos[1]][pos[0]]))
         
-        
+        # print(self.observer_seen)
+
+        # if self.observer_seen:
+        #     print("updating cause of observer detection")
+        #     self.goal = False
                 
-        if not self.goal or self.steps >= UPDATE_STEPS or self.check_path():
+        if not self.goal or self.steps >= UPDATE_STEPS or self.check_path() or self.observer_seen :
+                
 
             self.frontier.map_update(self.grid,self.gridnew)
             self.pathfinder.updateMap(self.map_combined)
@@ -476,12 +500,12 @@ class Robot(pygame.sprite.Sprite):
             path = self.pathfinder.create_path(pos,self.currentgoal)
             # print(path)
 
-            if not path:
-                # print("no path")
-                # del self.front[short_i]
-                # short_i, dist = self.closest_frontier(pos)
-                # self.currentgoal = self.front[short_i]
-                self.pathfinder.create_path(pos, self.currentgoal)
+            # if not path:
+            #     # print("no path")
+            #     # del self.front[short_i]
+            #     # short_i, dist = self.closest_frontier(pos)
+            #     # self.currentgoal = self.front[short_i]
+            #     self.pathfinder.create_path(pos, self.currentgoal)
 
             self.set_path(path)
             # print("currentgoalnum ")

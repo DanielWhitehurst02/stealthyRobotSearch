@@ -5,7 +5,6 @@ import numpy as np
 from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
 from pathfinding.finder.dijkstra import DijkstraFinder
-# from pathfinding.finder.bi_a_star import BiAStarFinder
 from pathfinding.core.diagonal_movement import DiagonalMovement
 
 from settings import *
@@ -95,8 +94,8 @@ class Pathfinder:
 
     #path
     # finder = AStarFinder(diagonal_movement= DiagonalMovement.always)
-    finder = DijkstraFinder(diagonal_movement= DiagonalMovement.always, max_runs=10000)
-    # finder = BiAStarFinder(diagonal_movement= DiagonalMovement.always)
+    finder = DijkstraFinder(diagonal_movement= DiagonalMovement.always)
+
     # finder = AStarFinder()
     # print(self.grid.grid_str())
     # print(self.matrix)
