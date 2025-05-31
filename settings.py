@@ -8,21 +8,30 @@ FPS = 30
 # WORLD = "worldfile/simpleenv.png"
 # WORLD = "worldfile/officebuilding.png"
 # WORLD = "worldfile/openwarehouse.png"
-WORLD = "worldfile/warehouse1.png"
+# WORLD = "worldfile/warehouse1.png"
 # WORLD = "worldfile/artgallery1.png"
+WORLD = "worldfile/openrooms1.png"
 
 #Robot Params
-ROBOT_WIDTH: int = 8
+ROBOT_WIDTH: int = 6
 ROBOT_START_X = 10
 ROBOT_START_Y = 10
 SPEED = 2
-ROBOT_VISION_LENGTH = 100
+ROBOT_VISION_LENGTH = 50
 ROBOT_FOV = 360
 ROBOT_PATHFINDING_AVOID_VISION = True
 FRONT_THRESHOLD = 1
-WALL_THRESHOLD = 3
+WALL_THRESHOLD = 4
 
-UPDATE_STEPS = 200
+UPDATE_STEPS = 100
+
+EXPLORE_PERCENT_FIN = 0.7
+
+## weights
+
+STEALTH_COST = 1
+INFO_GAIN = 1
+DIST_WEIGHT = 1
 
 #Observers
 OB_NUMBER = 3

@@ -6,6 +6,7 @@ from pathfinding.core.grid import Grid
 from pathfinding.finder.a_star import AStarFinder
 from pathfinding.finder.dijkstra import DijkstraFinder
 from pathfinding.core.diagonal_movement import DiagonalMovement
+# from pathfinding.core.heuristic import octile
 
 from settings import *
 
@@ -91,7 +92,7 @@ class Pathfinder:
     end = self.grid.node(end_x, end_y)
 
     ##seeing diagonals between walls as ok to move through
-
+    # oct = octile(dx = heuristic[0],dy =heuristic[1])
     #path
     # finder = AStarFinder(diagonal_movement= DiagonalMovement.always)
     finder = DijkstraFinder(diagonal_movement= DiagonalMovement.always)

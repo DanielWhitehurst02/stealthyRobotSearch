@@ -7,6 +7,7 @@ from supercover_line import supercover_line
 from frontier import Frontier
 from pathfinder import Pathfinder
 
+
 class Robot(pygame.sprite.Sprite):
     def __init__(self, size, world, background, observer_pos, observers_vision_map):
         super().__init__()
@@ -63,6 +64,8 @@ class Robot(pygame.sprite.Sprite):
         self.prev_seen = False
 
         self.observer_seen = False
+
+        self.wallthreshold = WALL_THRESHOLD
 
 
     def get_coord(self):
@@ -141,7 +144,7 @@ class Robot(pygame.sprite.Sprite):
         else:
             self.direction= [0,0]
 
-    def closest_frontier(self, pos): ## TODO calculate closest frontier by path dist
+    def closest_frontier(self, pos): 
         dist = math.dist([pos[1],pos[0]],[self.front[0][0],self.front[0][1]])
         short_i = 0
         for i in range(len(self.front)):
@@ -155,35 +158,134 @@ class Robot(pygame.sprite.Sprite):
                     # print(str(temp_dist) +" Index: "+str(i))
 
     def closest_frontier_shortest_path(self, pos): ## TODO calculate closest frontier by path dist
-        # dist = math.dist([pos[1],pos[0]],[self.front[0][0],self.front[0][1]])
-        dist = 100
+        dist = math.dist([pos[1],pos[0]],[self.front[0][0],self.front[0][1]])
+        # dist = 100
         short_i = 0
+        short_i_queue = [0,0,0,0,0]
         short_path = []
+
+        stealth_cost = 100000000
+        info_gain = 0
+
+        # front_value = 0
+
+        queue = []
+
         for i in range(len(self.front)):
             # temp_dist = math.dist([pos[1],pos[0]],[self.front[i][0],self.front[i][1]])
-            temp_path = self.pathfinder.create_path(pos,self.front[i])
+            # heuristic = [self.front[i][0],self.front[i][1]]
+            temp_path = self.pathfinder.create_path(pos, self.front[i])
             temp_dist = len(temp_path)
+            temp_stealth_cost = 0
             
-            # print(temp_dist)
+            temp_info_gain = self.frontier_info_gain([self.front[i][1],self.front[i][0]])
+            # print(info_gain)
+            for point in temp_path: 
+                y = (point.x)
+                x = (point.y)
+                temp_stealth_cost += self.map_combined[x,y]
 
-            if temp_dist < dist:
-                dist = temp_dist
+            queue.append([temp_info_gain,temp_stealth_cost,temp_dist])
+
+            # print(str(temp_dist) + " queueval: " + str(queue[i][2]))
+
+            # # print(temp_dist)
+
+            # if temp_dist < dist:
+            #     dist = temp_dist
+            #     # short_path = temp_path
+            #     short_i_queue[4] = short_i_queue[3]
+            #     short_i_queue[3] = short_i_queue[2]
+            #     short_i_queue[2] = short_i_queue[1]
+            #     short_i_queue[1] = short_i
+            #     short_i_queue[0] = i
+            #     short_i = i
+
+            # if temp_stealth_cost < stealth_cost:
+            #     dist = temp_dist
+            #     stealth_cost = temp_stealth_cost
+            #     short_path = temp_path
+            #     short_i = i
+
+        for i in range(len(queue)):
+            
+                # continue
+            
+            # info_temp = np.power(math.e,(-0.01*(INFO_GAIN*queue[i][0])))
+            # info_temp = 2 * math.log(INFO_GAIN*queue[i][0])
+            info_temp = INFO_GAIN*queue[i][0]
+            # info_temp = math.sqrt(INFO_GAIN*queue[i][0])
+            stealth_temp = (STEALTH_COST*queue[i][1])
+            dist_temp = (DIST_WEIGHT*queue[i][2])
+
+            # front_value_temp =  info_temp + stealth_temp + dist_temp
+            front_value_temp = info_temp - stealth_temp
+            # front_value_temp = (info_temp)/(pow(dist_temp,2)) - stealth_temp
+            # front_value_temp = (info_temp-stealth_temp)/(pow(dist_temp,1.2))
+
+            if i == 0:
+                front_value = front_value_temp
+
+            print("Info_gain: " + str(info_temp) + " Stealth cost: " + str(stealth_temp) + " DIST value: " + str(dist_temp) + " Front value: " + str(front_value_temp) + " Index: " + str(i))
+
+            if front_value_temp > front_value:
+                dist = queue[i][2]
+                # stealth_cost = temp_stealth_cost
+                front_value = front_value_temp
                 short_path = temp_path
                 short_i = i
-        # print(dist)
+        # for j in range(len(short_i_queue)):
+        #     i = short_i_queue[j]
+
+        #     temp_path = self.pathfinder.create_path(pos, self.front[i])
+        #     temp_dist = len(temp_path)
+        #     temp_stealth_cost = 0
+            
+        #     for point in temp_path: 
+        #         y = (point.x)
+        #         x = (point.y)
+        #         temp_stealth_cost += self.map_combined[x,y]
+
+
+        #     if temp_stealth_cost < stealth_cost:
+        #         dist = temp_dist
+        #         stealth_cost = temp_stealth_cost
+        #         short_path = temp_path
+        #         short_i = i
+
+        print( "selecting index: " + str(short_i))
         return short_i, dist, short_path
                     # print(str(temp_dist) +" Index: "+str(i))
+
+    def frontier_info_gain(self, pos):
+        info_gain= 0
+        for theta in np.arange(0,self.fov,5):
+            end_x, end_y = self.viewdist*math.cos(math.radians(theta)),self.viewdist*math.sin(math.radians(theta))
+            endp = [(round((end_x) + pos[0])), (round((end_y) + pos[1]))]
+            line = supercover_line(pos,endp)
+            for i in range(len(line)):
+                x, y = line[i][1],line[i][0]
+                if x >= self.grid.shape[0] or y >= self.grid.shape[1] or x<0 or y<0: # disreguard out of range readings
+                    break
+                if self.grid[x,y] == 0:
+                    info_gain += 1
+                elif self.grid[x,y] == 2: #if wall is found stop searching the lines
+                    break
+
+
+
+        return info_gain
+
 
     def check_path(self):
         obstructed = False
         if self.path:
-            for i in range(len(self.collision_rects)):
+            for i in range(len(self.collision_rects)-1):
                 val = self.grid[self.collision_rects[i][0]][self.collision_rects[i][1]]
                 
                 if val == 2:
                     obstructed = True
         return obstructed
-
 
     def check_collisions(self):
         if self.collision_rects:
@@ -200,8 +302,6 @@ class Robot(pygame.sprite.Sprite):
                 if self.pos == self.collision_rects[0]:
                     del self.collision_rects[0]
                     # self.get_direction_snapped()
-
-
 
     def visionmmap(self, background):
         pxwidth = background.get_width()
@@ -238,11 +338,23 @@ class Robot(pygame.sprite.Sprite):
 
         if self.world[x,y] == 1:
             self.grid[x,y] = 1
+            self.gridnew.append([2,x,y])
+        
+        for k in range(-1,2,1):            
+            if x<0 or y<0: # disreguard out of range readings
+                continue
+            for l in range(-1, 2,1): ## check surrounding tiles
+                if self.world[x+k,y+l] == 0: #if wall is found stop searching the lines
+                    self.grid[x+k,y+l] = 2
+                    self.gridnew.append([2,x+k,y+l])  ### [value, x, y]
+                else:
+                    self.grid[x+k,y+l] = 1
+                    self.gridnew.append([1,x+k,y+l])            
 
 
         for theta in np.arange(0,self.fov,1):
             end_x, end_y = self.viewdist*math.cos(math.radians(theta)),self.viewdist*math.sin(math.radians(theta))
-            endp = [(int((end_x) + self.get_coord()[0])), (int((end_y) + self.get_coord()[1]))]
+            endp = [(round((end_x) + self.get_coord()[0])), (round((end_y) + self.get_coord()[1]))]
             line = supercover_line(self.get_coord(),endp)
             
             for i in range(len(line)):
@@ -259,8 +371,6 @@ class Robot(pygame.sprite.Sprite):
                     self.grid[x,y] = 3
                     self.gridnew.append([3,x,y])
                     self.check_observers(x,y)
-                        
-
 
                 else:
                     self.grid[x,y] = 1
@@ -307,12 +417,12 @@ class Robot(pygame.sprite.Sprite):
                 if self.grid[i,j] == 1:
                     self.map_combined[i,j] = 1
                 elif self.grid[i,j] == 0:
-                    self.map_combined[i,j] = 50 ##-1 for unknown cell
+                    self.map_combined[i,j] = 10 ##-1 for unknown cell
                 else:
                     self.map_combined[i,j] = 0
         
         if ROBOT_PATHFINDING_AVOID_VISION:
-
+            #### TODO currently robot knows vision arcs of robot
             for i in range(len(self.observers_vision_known)):
                 if self.observers_vision_known[i] != 0:
                     for j in range(len(self.observers_vision_known[i])):
@@ -452,43 +562,65 @@ class Robot(pygame.sprite.Sprite):
         # print("Value at pos: " + str(self.map_combined[pos[1]][pos[0]]))
         
         # print(self.observer_seen)
+        path_clear = self.check_path()
 
         # if self.observer_seen:
         #     print("updating cause of observer detection")
         #     self.goal = False
+
+        if path_clear:
+            print("path blocked")
+            # if len(self.collision_rects) <= 0:
+            self.goal = False
+            # elif self.grid[self.collision_rects[1][0]][self.collision_rects[1][1]] == 2:
+            #     self.goal = False
                 
-        if not self.goal or self.steps >= UPDATE_STEPS or self.check_path() or self.observer_seen :
-                
+        if not self.goal or self.steps >= UPDATE_STEPS or self.observer_seen :
+            self.wallthreshold = WALL_THRESHOLD
 
             self.frontier.map_update(self.grid,self.gridnew)
             self.pathfinder.updateMap(self.map_combined)
 
-            self.front = self.frontier.get_frontiers()
+            has_front = False
 
-            if self.front:
-                findfrontier = True
-                while findfrontier:
-                    short_i, dist, short_path = self.closest_frontier_shortest_path(pos)
-                    # print(dist)
-                    if dist < 0:
-                        del self.front[short_i]
-                        # short_i, dist = self.closest_frontier(pos)
-                        findfrontier = True
+            while not has_front:
+
+                self.front = self.frontier.get_frontiers(self.wallthreshold)
+
+                if self.front:
+                    findfrontier = True
+                    while findfrontier:
+                        short_i, dist, short_path = self.closest_frontier_shortest_path(pos)
+                        # print(dist)
+                        if dist < 0:
+                            del self.front[short_i]
+                            # short_i, dist = self.closest_frontier(pos)
+                            findfrontier = True
+                        else:
+                            findfrontier = False
+
+
+                    
+
+                    self.currentfront = short_i
+                    self.currentgoal = self.front[short_i]
+                    has_front = True
+                    
+                else:
+                    print(self.get_percent_explored())
+                    print(self.get_percent_explored() > EXPLORE_PERCENT_FIN)
+
+                    if self.get_percent_explored() > EXPLORE_PERCENT_FIN:
+                        has_front = True
+                        finished = True
                     else:
-                        findfrontier = False
-
-
-
-
-                self.currentfront = short_i
-                self.currentgoal = self.front[short_i]
-                
-            else:
-                # randx, randy = np.random.randint(-1,1),np.random.randint(-1,1)
+                        self.wallthreshold += 1
+                # randx, randy = np.random.randint(-1,2),np.random.randint(-1,2)
+                # print(randx)
                 # self.currentgoal = [pos[1]+randx,pos[0]+randy]
                 # self.currentgoal = [pos[1],pos[0]]
-                finished = True
-
+                # finished = True
+                # has_front = True
             # print(self.currentgoal)
 
             # if short_path:

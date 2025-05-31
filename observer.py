@@ -35,7 +35,7 @@ class Observers(pygame.sprite.Sprite):
             visionmaptemp = np.zeros([self.map.shape[0], self.map.shape[1]])
             # print("current ang: "+str(i))
             self.visionmap.append([])
-            for theta in np.arange(0,self.fov,1):
+            for theta in np.arange(0,self.fov,0.5):
                 theta_adjusted = theta +self.pos_grid[i][2]
                 # theta_adjusted = theta
                 end_x, end_y = OB_VIEW_DIST*math.cos(math.radians(theta_adjusted)), OB_VIEW_DIST*math.sin(math.radians(theta_adjusted))
@@ -51,9 +51,14 @@ class Observers(pygame.sprite.Sprite):
                     if self.map[x,y] == 0: #if wall is found stop searching the lines
                         break
                     else:
+                        # distance = (j)
+
                         # visionmaptemp[x,y] = (OB_VIEW_DIST-j)*pow(2,VISION_COST)  #TODO make this a list for each robot
-                        visionmaptemp[x,y] = pow((VISION_COST*(-OB_VIEW_DIST+j)),2)
+                        # visionmaptemp[x,y] = pow((VISION_COST*(-OB_VIEW_DIST+j)),2)
                         # visionmaptemp[x,y] = pow(math.e,VISION_COST*(OB_VIEW_DIST-j))
+
+                        visionmaptemp[x,y] = (OB_VIEW_DIST/(VISION_COST*(j+1)))
+
                         # print("index: " + str(j) + " visioncost: " + str(visionmaptemp[x,y]))
                         # print(OB_VIEW_DIST-j)
                         # self.visionmap[1,x,y] =  i  ### TODO make this hold multiple robots (maybe new variable)

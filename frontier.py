@@ -22,7 +22,7 @@ class Frontier:
         self.map = map
         self.new_space = vision
 
-    def frontier_check(self,i,j):
+    def frontier_check(self,i,j, wall_thres):
         threshold = 0
         wall_threshold = 0
         frontier = False
@@ -41,7 +41,7 @@ class Frontier:
                     wall_threshold += 1
 
         # print(wall_threshold)
-        if threshold >= FRONT_THRESHOLD and wall_threshold < WALL_THRESHOLD:
+        if threshold >= FRONT_THRESHOLD and wall_threshold < wall_thres:
             frontier = True
 
 
@@ -64,7 +64,7 @@ class Frontier:
             #### TODO gives values inside walls, pathfinder wont go there at all
 
     
-    def get_frontiers(self):
+    def get_frontiers(self,threshold):
         # for i in range(len(self.new_space)): #[Cell info, x, y]
         self.frontiers = []
         # temp_map = self.map
@@ -77,7 +77,7 @@ class Frontier:
                 x,y = self.new_space[i][1], self.new_space[i][2]
                 # index += 1
 
-                self.frontier_check(x,y)
+                self.frontier_check(x,y,threshold)
 
             self.queue_process()
 
@@ -89,7 +89,7 @@ class Frontier:
                 for j in range(self.map.shape[1]):
                     
                     if self.map[i,j] == 1:   #check if the cell is empty space
-                        if self.frontier_check(i,j):
+                        if self.frontier_check(i,j,threshold):
                             self.frontiersqueue.append([i,j])
                         
 
