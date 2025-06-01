@@ -2,7 +2,7 @@
 import pygame
 import math
 import numpy as np
-import matplotlib.pyplot as plt
+import pickle
 
 
 from sys import exit
@@ -15,7 +15,6 @@ from observer import Observers
 
 import utils as util
 
-# from bresenham import bresenham
 
 pygame.init()
 
@@ -52,6 +51,9 @@ run = False
 placing = True
 ob_pos = []
 pos_temp = []
+finished = False
+
+data_name = 'office_weightingstealth'
 
 
 # pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
@@ -118,7 +120,8 @@ while True:
                         ob_temp += 1
         pygame.display.flip()
 
-    else:
+
+    if run and not finished:
 
 
         linemap = []
@@ -154,7 +157,7 @@ while True:
         
         finish = robot.update(screen)
 
-        observer.draw_vision(screen,YELLOW_TRANS)
+        # observer.draw_vision(screen,YELLOW_TRANS)
 
 
         # screen.fill(white)
@@ -175,10 +178,19 @@ while True:
 
         if finish:
             print("environment explored, plotting results")
+            finished = True
+            # print(robot.get_path())
+            path, time_seen, number_time_seen, percent_explored = robot.get_eval()
+
+            with open(data_name,"wb") as outf:
+                pickle.dump([path, time_seen, number_time_seen, percent_explored],outf)
             pygame.quit()
             exit()
 
 
-        pygame.display.flip()
-        clock.tick(FPS)
-    
+
+
+
+    # print(clock.get_time())
+    pygame.display.flip()
+    clock.tick(FPS)

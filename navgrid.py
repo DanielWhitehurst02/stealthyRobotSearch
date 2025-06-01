@@ -24,6 +24,8 @@ class Navgrid:
       gridwd = int(pxwidth/self.width)
       gridhi = int(pxheight/self.width) 
       
+      print(" Grid wd x hi: " + str(gridwd) + " , " + str(gridhi))
+
       grid = np.zeros(shape=(gridwd, gridhi))
 
       # print(grid.shape)

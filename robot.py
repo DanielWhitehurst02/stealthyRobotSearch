@@ -42,6 +42,8 @@ class Robot(pygame.sprite.Sprite):
         self.goal = False
         self.goalnum = 0
         self.steps = 0
+
+
         
         #Observers
 
@@ -62,10 +64,14 @@ class Robot(pygame.sprite.Sprite):
         self.number_times_seen = 0
         self.time_seen = 0
         self.prev_seen = False
+        self.eval_path = []
+        self.time = 0
 
         self.observer_seen = False
 
         self.wallthreshold = WALL_THRESHOLD
+
+        self.get_map_combined_ground_truth()
 
 
     def get_coord(self):
@@ -183,7 +189,8 @@ class Robot(pygame.sprite.Sprite):
             for point in temp_path: 
                 y = (point.x)
                 x = (point.y)
-                temp_stealth_cost += self.map_combined[x,y]
+                if ROBOT_PATHFINDING_AVOID_VISION:
+                    temp_stealth_cost += self.map_combined[x,y]
 
             queue.append([temp_info_gain,temp_stealth_cost,temp_dist])
 
@@ -219,9 +226,12 @@ class Robot(pygame.sprite.Sprite):
             dist_temp = (DIST_WEIGHT*queue[i][2])
 
             # front_value_temp =  info_temp + stealth_temp + dist_temp
-            front_value_temp = info_temp - stealth_temp
+            # front_value_temp = info_temp - stealth_temp
             # front_value_temp = (info_temp)/(pow(dist_temp,2)) - stealth_temp
-            # front_value_temp = (info_temp-stealth_temp)/(pow(dist_temp,1.2))
+            
+            # front_value_temp = (info_temp-stealth_temp)/(pow(dist_temp,1.3))
+
+            front_value_temp = (info_temp)/(pow(dist_temp,1.3))-stealth_temp
 
             if i == 0:
                 front_value = front_value_temp
@@ -417,7 +427,7 @@ class Robot(pygame.sprite.Sprite):
                 if self.grid[i,j] == 1:
                     self.map_combined[i,j] = 1
                 elif self.grid[i,j] == 0:
-                    self.map_combined[i,j] = 10 ##-1 for unknown cell
+                    self.map_combined[i,j] = 50 ##-1 for unknown cell
                 else:
                     self.map_combined[i,j] = 0
         
@@ -429,6 +439,23 @@ class Robot(pygame.sprite.Sprite):
                         x,y = self.observers_vision_known[i][j][0], self.observers_vision_known[i][j][1]
                         if self.observers_vision_known[i][j][2] > 0:
                             self.map_combined[x,y] += self.observers_vision_known[i][j][2]  
+
+    def get_map_combined_ground_truth(self):
+        self.map_combined_truth = np.zeros(shape=(self.world.shape[0], self.world.shape[1]))
+
+        for i in range(self.world.shape[0]):
+            for j in range(self.world.shape[1]):
+                if self.world[i,j] == 1:
+                    self.map_combined_truth[i,j] = 0 ## empty space
+                else:
+                    self.map_combined_truth[i,j] = 1 ## wall
+        
+
+        for i in range(len(self.observers_vision)):
+            for j in range(len(self.observers_vision[i])):
+                x,y = self.observers_vision[i][j][0], self.observers_vision[i][j][1]
+                if self.observers_vision[i][j][2] > 0:
+                    self.map_combined_truth[x,y] += self.observers_vision[i][j][2]  
 
     def drawmap(self, background,front):
         
@@ -528,19 +555,24 @@ class Robot(pygame.sprite.Sprite):
     
     def get_number_times_seen(self,x,y):
         # print(self.prev_seen)
-        if self.map_combined[y,x] > 1 and self.prev_seen == False:
+        if self.map_combined_truth[y,x] > 1 and self.prev_seen == False:
             
             self.number_times_seen += 1
 
             self.prev_seen = True
-        elif self.map_combined[y,x] <= 1:
+        elif self.map_combined_truth[y,x] <= 1:
             self.prev_seen = False
     
     def get_time_seen(self,x,y):
         # print(self.map_combined[y,x])
-        if self.map_combined[y,x] > 1:
+        if self.map_combined_truth[y,x] > 1:
             self.time_seen += 1
 
+    def save_path(self,x,y):
+        self.eval_path.append([x,y])
+    
+    def get_eval(self):
+        return self.eval_path, self.time_seen, self.number_times_seen, self.percent_explored
     
     ### Update Loop ###
     ## TODO update frontiers when observer is seen
@@ -675,9 +707,10 @@ class Robot(pygame.sprite.Sprite):
 
         self.get_time_seen(x,y)
         self.get_number_times_seen(x,y)
+        self.save_path(x,y)
         # print(self.time_seen)
         # print(self.number_times_seen)
-
+        self.time += 1
         self.steps += 1
 
         # self.pos += (self.direction * self.speed)
