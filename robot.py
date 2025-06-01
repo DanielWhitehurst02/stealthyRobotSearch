@@ -67,6 +67,11 @@ class Robot(pygame.sprite.Sprite):
         self.eval_path = []
         self.time = 0
 
+        self.time_seen_list = []
+        self.number_seen_list = []
+        self.percent_explored_list = []
+        self.x_axis = []
+
         self.observer_seen = False
 
         self.wallthreshold = WALL_THRESHOLD
@@ -175,44 +180,60 @@ class Robot(pygame.sprite.Sprite):
 
         # front_value = 0
 
+        front_search = True
+        i = 0
         queue = []
+        increment = True
 
-        for i in range(len(self.front)):
+
+        if i >= len(self.front):
+            front_search = False
+
+
+        while front_search:
+            # print(i)
+
+        # for i in range(len(self.front)):
             # temp_dist = math.dist([pos[1],pos[0]],[self.front[i][0],self.front[i][1]])
             # heuristic = [self.front[i][0],self.front[i][1]]
+
+
             temp_path = self.pathfinder.create_path(pos, self.front[i])
             temp_dist = len(temp_path)
             temp_stealth_cost = 0
             
+            
             temp_info_gain = self.frontier_info_gain([self.front[i][1],self.front[i][0]])
+
+            dump = temp_info_gain < INFO_GAIN_DISREGARD
+            
+            if dump:
+                increment = False
+                del self.front[i]
+            else:
+                increment = True
+            
+
             # print(info_gain)
             for point in temp_path: 
                 y = (point.x)
                 x = (point.y)
                 if ROBOT_PATHFINDING_AVOID_VISION:
-                    temp_stealth_cost += self.map_combined[x,y]
+                    val = self.map_combined[x,y]
+                    if val > 1:
+                        temp_stealth_cost += val -1
+            
 
-            queue.append([temp_info_gain,temp_stealth_cost,temp_dist])
+            if not dump:
+                queue.append([temp_info_gain,temp_stealth_cost,temp_dist])
+            
+            if increment:
+                i += 1
 
+            if i >= len(self.front):
+                front_search = False
             # print(str(temp_dist) + " queueval: " + str(queue[i][2]))
 
-            # # print(temp_dist)
-
-            # if temp_dist < dist:
-            #     dist = temp_dist
-            #     # short_path = temp_path
-            #     short_i_queue[4] = short_i_queue[3]
-            #     short_i_queue[3] = short_i_queue[2]
-            #     short_i_queue[2] = short_i_queue[1]
-            #     short_i_queue[1] = short_i
-            #     short_i_queue[0] = i
-            #     short_i = i
-
-            # if temp_stealth_cost < stealth_cost:
-            #     dist = temp_dist
-            #     stealth_cost = temp_stealth_cost
-            #     short_path = temp_path
-            #     short_i = i
 
         for i in range(len(queue)):
             
@@ -231,19 +252,34 @@ class Robot(pygame.sprite.Sprite):
             
             # front_value_temp = (info_temp-stealth_temp)/(pow(dist_temp,1.3))
 
-            front_value_temp = (info_temp)/(pow(dist_temp,1.3))-stealth_temp
+            # front_value_temp = (info_temp)/(pow(dist_temp,1.3))-stealth_temp
+
+            if PURE_STEALTH:
+                front_value_temp = stealth_temp
+            else:
+                front_value_temp = (info_temp)/pow(stealth_temp+dist_temp,1.3)
 
             if i == 0:
                 front_value = front_value_temp
 
+            # if INFO_GAIN_DISREGARD_BOOL:
+            #     if info_temp <= INFO_GAIN_DISREGARD:
+            #         # del self.front[i]
+            #         continue
+
             print("Info_gain: " + str(info_temp) + " Stealth cost: " + str(stealth_temp) + " DIST value: " + str(dist_temp) + " Front value: " + str(front_value_temp) + " Index: " + str(i))
 
-            if front_value_temp > front_value:
+            if front_value_temp > front_value and not PURE_STEALTH:
                 dist = queue[i][2]
                 # stealth_cost = temp_stealth_cost
                 front_value = front_value_temp
                 short_path = temp_path
                 short_i = i
+            elif front_value_temp < front_value and PURE_STEALTH:
+                front_value = front_value_temp
+                short_path = temp_path
+                short_i = i
+
         # for j in range(len(short_i_queue)):
         #     i = short_i_queue[j]
 
@@ -571,9 +607,8 @@ class Robot(pygame.sprite.Sprite):
     def save_path(self,x,y):
         self.eval_path.append([x,y])
     
-    def get_eval(self):
-        return self.eval_path, self.time_seen, self.number_times_seen, self.percent_explored
-    
+    def get_eval(self):            
+        return self.eval_path,  self.time_seen_list, self.number_seen_list, self.percent_explored_list, self.x_axis
     ### Update Loop ###
     ## TODO update frontiers when observer is seen
     ##TODO Check path
@@ -633,10 +668,13 @@ class Robot(pygame.sprite.Sprite):
 
 
                     
-
-                    self.currentfront = short_i
-                    self.currentgoal = self.front[short_i]
-                    has_front = True
+                    if self.front:
+                        self.currentfront = short_i
+                        self.currentgoal = self.front[short_i]
+                        has_front = True
+                    else:
+                        has_front = True
+                        finished = True
                     
                 else:
                     print(self.get_percent_explored())
@@ -679,6 +717,11 @@ class Robot(pygame.sprite.Sprite):
 
             print("Percentage Explored " + str(self.get_percent_explored()) +" Time seen: " + str(self.time_seen) + " Number of times seen: " + str(self.number_times_seen) )
             # print(self.observers_known)
+
+            self.time_seen_list.append(self.time_seen)
+            self.number_seen_list.append(self.number_times_seen)
+            self.percent_explored_list.append(self.percent_explored)
+            self.x_axis.append(self.time)
 
             self.goalnum += 1
             if self.path:

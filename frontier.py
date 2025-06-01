@@ -55,11 +55,13 @@ class Frontier:
             # print(i)
             sum_x,sum_y = 0,0
             num_points = len(grouped[i])
+            if num_points < 4:
+                continue
             for j in range(len(grouped[i])):
                 sum_x += grouped[i][j][0]
                 sum_y += grouped[i][j][1]
             
-            midpoint = [int(sum_x/num_points),int(sum_y/num_points)]
+            midpoint = [round(sum_x/num_points),round(sum_y/num_points)]
             self.frontiers.append(midpoint)
             #### TODO gives values inside walls, pathfinder wont go there at all
 

@@ -10,7 +10,7 @@ from supercover_line import supercover_line
 class Observers(pygame.sprite.Sprite):
     def __init__(self, map, fov, pos ,color, background):   
         #input pos array of [x,y, orientation]
-        self.pos_grid= pos
+        self.pos_grid = pos
 
         self.map = map
 
@@ -89,7 +89,7 @@ class Observers(pygame.sprite.Sprite):
         # print(self.visionmap)
         # for i in range(self.visionmap.shape[1]):
         #     for j in range(self.visionmap.shape[2]):
-        print(len(self.visionmap))
+        # print(len(self.visionmap))
         for i in range(len(self.visionmap)):
                 # print(i)
                 # print(self.visionmap[i][2])
@@ -106,13 +106,17 @@ class Observers(pygame.sprite.Sprite):
         # print(self.surfgrid)
         
         for i in range(len(self.surfgrid)):
-            
+            # print(i)
             self.surfgrid[i][0].fill(color)
             self.background.blit(self.surfgrid[i][0],(self.surfgrid[i][1]*ROBOT_WIDTH, self.surfgrid[i][2]*ROBOT_WIDTH, ROBOT_WIDTH, ROBOT_WIDTH))
 
         background.blit(self.background,(0,0))
         self.surfgrid.clear()
-        return self.background
+        # print("vis")
+        # return self.background
+    
+    def update_vision(self, screen):
+        screen.blit(self.background, (0,0))
             
 
 

@@ -6,26 +6,35 @@ FPS = 30
 # WORLD = "worldfile/conestogo_office.png"
 # WORLD = "worldfile/maze1.png"
 # WORLD = "worldfile/simpleenv.png"
-# WORLD = "worldfile/officebuilding.png"
+WORLD = "worldfile/officebuilding.png"
 # WORLD = "worldfile/openwarehouse.png"
 # WORLD = "worldfile/warehouse1.png"
 # WORLD = "worldfile/artgallery1.png"
-WORLD = "worldfile/openrooms1.png"
+# WORLD = "worldfile/openrooms1.png"
+
+
+ENVIRONMENT = 'office_space'
+
+# ENVIRONMENT = 'openrooms1'
+
+# ENVIRONMENT = 'warehouse1'
+
 
 #Robot Params
-ROBOT_WIDTH: int = 6
+ROBOT_WIDTH: int = 4
 ROBOT_START_X = 10
 ROBOT_START_Y = 10
 SPEED = 2
-ROBOT_VISION_LENGTH = 50
+ROBOT_VISION_LENGTH = 200
 ROBOT_FOV = 360
 ROBOT_PATHFINDING_AVOID_VISION = True
+PURE_STEALTH = False
 FRONT_THRESHOLD = 1
 WALL_THRESHOLD = 4
 
-UPDATE_STEPS = 100
+UPDATE_STEPS = 200
 
-EXPLORE_PERCENT_FIN = 0.7
+EXPLORE_PERCENT_FIN = 0.69
 
 ## weights
 
@@ -33,10 +42,13 @@ STEALTH_COST = 1
 INFO_GAIN = 1
 DIST_WEIGHT = 1
 
+INFO_GAIN_DISREGARD_BOOL = False
+INFO_GAIN_DISREGARD = 200
+
 #Observers
 OB_NUMBER = 3
 OB_VIEW_DIST = 100
-VISION_COST = 0.1    ## percentage
+VISION_COST = 0.1   ## percentage
 
 #colours
 RED = (255, 0, 0,255)

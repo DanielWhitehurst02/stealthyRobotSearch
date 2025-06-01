@@ -49,11 +49,20 @@ navgrid.loadgrid()
 ob_temp = 0
 run = False
 placing = True
+save = False
 ob_pos = []
 pos_temp = []
 finished = False
 
-data_name = 'office_weightingstealth'
+environment = 'office_space'
+
+# data_name = 'office_weightingstealth'
+# data_name = 'office_stealth_only'
+# data_name = 'office_nostealth'
+data_name = 'office_weighting_disreguard'
+
+with open(environment, 'rb') as inf: 
+    ob_pos1, env = pickle.load(inf)
 
 
 # pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
@@ -106,18 +115,24 @@ while True:
                 #Place observers
                 if ob_temp == (OB_NUMBER):
                     print(ob_pos)
-                    observer = Observers(navgrid.get_grid(),360,ob_pos,PURPLE,screen)
+                    observer = Observers(navgrid.get_grid(),360,ob_pos1,PURPLE,screen)
                     vision = observer.vision()
-                    robot = Robot(robwidth, observer.add_observers_tomap(navgrid.get_grid()), screen,ob_pos,vision)
+                    robot = Robot(robwidth, observer.add_observers_tomap(navgrid.get_grid()), screen,ob_pos1,vision)
                     robot.visionmmap(screen)
                     
                     observer.def_vision_map()
                     observer.draw_vision(screen,YELLOW_TRANS)
 
                     run = True
+
+                    if save:
+                        with open(environment,"wb") as outf:
+                            pickle.dump([ob_pos, WORLD],outf)
                 else:
                     if placing == True:
                         ob_temp += 1
+
+        
         pygame.display.flip()
 
 
@@ -157,7 +172,7 @@ while True:
         
         finish = robot.update(screen)
 
-        # observer.draw_vision(screen,YELLOW_TRANS)
+        observer.draw_vision(screen,YELLOW_TRANS)
 
 
         # screen.fill(white)
@@ -180,10 +195,11 @@ while True:
             print("environment explored, plotting results")
             finished = True
             # print(robot.get_path())
-            path, time_seen, number_time_seen, percent_explored = robot.get_eval()
+            path, time_seen, number_time_seen, percent_explored, x_axis = robot.get_eval()
+            map = robot.get_vision_grid()
 
             with open(data_name,"wb") as outf:
-                pickle.dump([path, time_seen, number_time_seen, percent_explored],outf)
+                pickle.dump([path, time_seen, number_time_seen, percent_explored, x_axis,map],outf)
             pygame.quit()
             exit()
 
