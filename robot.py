@@ -205,24 +205,27 @@ class Robot(pygame.sprite.Sprite):
             
             temp_info_gain = self.frontier_info_gain([self.front[i][1],self.front[i][0]])
 
-            dump = temp_info_gain < INFO_GAIN_DISREGARD
+            dump = temp_info_gain < INFO_GAIN_DISREGARD 
             
             if dump:
                 increment = False
                 del self.front[i]
             else:
                 increment = True
-            
+                for point in temp_path: 
+                    y = (point.x)
+                    x = (point.y)
+                    if ROBOT_PATHFINDING_AVOID_VISION:
+                        val = self.map_combined[x,y]
+                        if val > 1:
+                            temp_stealth_cost += val -1
+            if (temp_stealth_cost > 0 and INFO_GAIN_DISREGARD_BOOL and temp_info_gain < INFO_GAIN_DISREGARD_STEALTH):
+                increment = False
+                del self.front[i]
+                dump = True
 
             # print(info_gain)
-            for point in temp_path: 
-                y = (point.x)
-                x = (point.y)
-                if ROBOT_PATHFINDING_AVOID_VISION:
-                    val = self.map_combined[x,y]
-                    if val > 1:
-                        temp_stealth_cost += val -1
-            
+                
 
             if not dump:
                 queue.append([temp_info_gain,temp_stealth_cost,temp_dist])
