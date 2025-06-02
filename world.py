@@ -58,11 +58,16 @@ finished = False
 # environment = 'office_space'
 
 # environment = 'hallways'
-environment = 'warehouse'
-# environment = 'openroom'
+# environment = 'warehouse'
+environment = 'openroom'
 
+# strategy = "weighting_disreguard_near_front"
+# strategy = "weighting_disreguard_midpoint_front"
 strategy = "weighting_disreguard"
+# strategy = "weighting"
 # strategy = "no_stealth"
+# strategy = "no_stealth_near_front"
+# strategy = "no_stealth_midpoint_front"
 # strategy = "stealth_only"
 
 

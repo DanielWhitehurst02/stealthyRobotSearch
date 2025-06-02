@@ -9,9 +9,9 @@ FPS = 60
 # WORLD = "worldfile/officebuilding.png"
 # WORLD = "worldfile/openwarehouse.png"
 # WORLD = "worldfile/warehouse1.png"
-WORLD = "worldfile/warehouse2.png"
+# WORLD = "worldfile/warehouse2.png"
 # WORLD = "worldfile/artgallery1.png"
-# WORLD = "worldfile/openrooms1.png"
+WORLD = "worldfile/openrooms1.png"
 # WORLD = "worldfile/hallways.png"
 
 
@@ -36,7 +36,7 @@ ROBOT_PATHFINDING_AVOID_VISION = True
 
 PURE_STEALTH = False
 # PURE_STEALTH = True
-
+#
 INFO_GAIN_DISREGARD_BOOL = True
 # INFO_GAIN_DISREGARD_BOOL = False
 

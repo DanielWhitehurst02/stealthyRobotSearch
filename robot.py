@@ -656,6 +656,7 @@ class Robot(pygame.sprite.Sprite):
             while not has_front:
 
                 self.front = self.frontier.get_frontiers(self.wallthreshold, pos)
+                # self.front = self.frontier.get_frontiers_active(self.gridnew)
 
                 if self.front:
                     findfrontier = True
@@ -673,7 +674,9 @@ class Robot(pygame.sprite.Sprite):
                     
                     if self.front:
                         self.currentfront = short_i
+                        # self.currentfront = 0
                         self.currentgoal = self.front[short_i]
+                        # self.currentgoal = self.front[0]
                         has_front = True
                     else:
                         has_front = True
@@ -758,6 +761,9 @@ class Robot(pygame.sprite.Sprite):
         # print(self.number_times_seen)
         self.time += 1
         self.steps += 1
+
+        # if self.steps > 2:
+        #     self.direction = [0,0]
 
         # self.pos += (self.direction * self.speed)
         # print(str(self.pos)+" direct: " + str(self.direction))
