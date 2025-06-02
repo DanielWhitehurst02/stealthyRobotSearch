@@ -1,23 +1,26 @@
 #Setup
 # WIDTH = 1280
 # HEIGHT = 720
-FPS = 30
+FPS = 60
 
 # WORLD = "worldfile/conestogo_office.png"
 # WORLD = "worldfile/maze1.png"
 # WORLD = "worldfile/simpleenv.png"
-WORLD = "worldfile/officebuilding.png"
+# WORLD = "worldfile/officebuilding.png"
 # WORLD = "worldfile/openwarehouse.png"
 # WORLD = "worldfile/warehouse1.png"
+WORLD = "worldfile/warehouse2.png"
 # WORLD = "worldfile/artgallery1.png"
 # WORLD = "worldfile/openrooms1.png"
+# WORLD = "worldfile/hallways.png"
 
 
-ENVIRONMENT = 'office_space'
+# ENVIRONMENT = 'office_space'
 
 # ENVIRONMENT = 'openrooms1'
 
-# ENVIRONMENT = 'warehouse1'
+# ENVIRONMENT = 'warehouse'
+# ENVIRONMENT = 'hallways'
 
 
 #Robot Params
@@ -25,10 +28,18 @@ ROBOT_WIDTH: int = 4
 ROBOT_START_X = 10
 ROBOT_START_Y = 10
 SPEED = 2
-ROBOT_VISION_LENGTH = 200
+ROBOT_VISION_LENGTH = 100
 ROBOT_FOV = 360
+
 ROBOT_PATHFINDING_AVOID_VISION = True
+# ROBOT_PATHFINDING_AVOID_VISION = False
+
 PURE_STEALTH = False
+# PURE_STEALTH = True
+
+INFO_GAIN_DISREGARD_BOOL = True
+# INFO_GAIN_DISREGARD_BOOL = False
+
 FRONT_THRESHOLD = 1
 WALL_THRESHOLD = 4
 
@@ -42,7 +53,6 @@ STEALTH_COST = 1
 INFO_GAIN = 1
 DIST_WEIGHT = 1.5
 
-INFO_GAIN_DISREGARD_BOOL = True
 INFO_GAIN_DISREGARD_STEALTH = 1000
 INFO_GAIN_DISREGARD = 200
 

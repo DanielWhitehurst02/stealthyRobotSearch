@@ -65,8 +65,34 @@ class Frontier:
             self.frontiers.append(midpoint)
             #### TODO gives values inside walls, pathfinder wont go there at all
 
+    def queue_process_closest(self, pos):
+        grouped = util.group_adjacents(self.frontiersqueue)
+        
+        x,y = pos[1], pos[0]
+        
+        
+
+        for i in range(len(grouped)):
+            # print(i)
+            # sum_x,sum_y = 0,0
+            num_points = len(grouped[i])
+            if num_points < 5:
+                continue
+            dist = math.dist([x,y],[grouped[i][0][0], grouped[i][0][1]])
+            short_index = 0
+            for j in range(len(grouped[i])):
+                
+                x_1, y_1 = grouped[i][j][0], grouped[i][j][1]
+                temp_dist = math.dist([x,y],[x_1,y_1])
+
+                if temp_dist < dist:
+                    dist = temp_dist
+                    short_index = j
+            self.frontiers.append([grouped[i][short_index][0], grouped[i][short_index][1]])
+
+
     
-    def get_frontiers(self,threshold):
+    def get_frontiers(self,threshold, pos):
         # for i in range(len(self.new_space)): #[Cell info, x, y]
         self.frontiers = []
         # temp_map = self.map
@@ -81,7 +107,8 @@ class Frontier:
 
                 self.frontier_check(x,y,threshold)
 
-            self.queue_process()
+            # self.queue_process()
+            self.queue_process_closest(pos)
 
 
         if not self.frontiers:
@@ -98,7 +125,8 @@ class Frontier:
                     # elif self.map[i,j] ==5:
                     #     print("tile already checked: " + str(i) + " , " + str(j))
             # print("frontiers queue: " + str(self.frontiersqueue))
-            self.queue_process()
+            # self.queue_process()
+            self.queue_process_closest(pos)
             # print( "frontiers: "+str(self.frontiers))
 
 

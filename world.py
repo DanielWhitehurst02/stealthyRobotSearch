@@ -49,20 +49,32 @@ navgrid.loadgrid()
 ob_temp = 0
 run = False
 placing = True
+# save = True
 save = False
 ob_pos = []
 pos_temp = []
 finished = False
 
-environment = 'office_space'
+# environment = 'office_space'
+
+# environment = 'hallways'
+environment = 'warehouse'
+# environment = 'openroom'
+
+strategy = "weighting_disreguard"
+# strategy = "no_stealth"
+# strategy = "stealth_only"
+
 
 # data_name = 'office_weightingstealth'
 # data_name = 'office_stealth_only'
 # data_name = 'office_nostealth'
-data_name = 'office_weighting_disreguard'
+# data_name = 'office_weighting_disreguard'
+data_name = (environment +"_"+ strategy)
 
-with open(environment, 'rb') as inf: 
-    ob_pos1, env = pickle.load(inf)
+if not save:
+    with open(environment, 'rb') as inf: 
+        ob_pos1, env = pickle.load(inf)
 
 
 # pathfinder = Pathfinder(navgrid.grid,goal,robwidth)
@@ -115,9 +127,14 @@ while True:
                 #Place observers
                 if ob_temp == (OB_NUMBER):
                     print(ob_pos)
-                    observer = Observers(navgrid.get_grid(),360,ob_pos1,PURPLE,screen)
+                    if not save:
+                        ob_pos_in = ob_pos1
+                    else:
+                        ob_pos_in = ob_pos
+
+                    observer = Observers(navgrid.get_grid(),360,ob_pos_in,PURPLE,screen)
                     vision = observer.vision()
-                    robot = Robot(robwidth, observer.add_observers_tomap(navgrid.get_grid()), screen,ob_pos1,vision)
+                    robot = Robot(robwidth, observer.add_observers_tomap(navgrid.get_grid()), screen,ob_pos_in,vision)
                     robot.visionmmap(screen)
                     
                     observer.def_vision_map()
@@ -198,8 +215,9 @@ while True:
             path, time_seen, number_time_seen, percent_explored, x_axis = robot.get_eval()
             map = robot.get_vision_grid()
 
-            with open(data_name,"wb") as outf:
+            with open(data_name,"ab") as outf:
                 pickle.dump([path, time_seen, number_time_seen, percent_explored, x_axis,map],outf)
+
             pygame.quit()
             exit()
 

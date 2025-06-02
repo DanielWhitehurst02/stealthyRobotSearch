@@ -258,7 +258,7 @@ class Robot(pygame.sprite.Sprite):
             # front_value_temp = (info_temp)/(pow(dist_temp,1.3))-stealth_temp
 
             if PURE_STEALTH:
-                front_value_temp = stealth_temp
+                front_value_temp = stealth_temp + dist_temp
             else:
                 front_value_temp = (info_temp)/pow(stealth_temp+dist_temp,1.3)
 
@@ -466,7 +466,7 @@ class Robot(pygame.sprite.Sprite):
                 if self.grid[i,j] == 1:
                     self.map_combined[i,j] = 1
                 elif self.grid[i,j] == 0:
-                    self.map_combined[i,j] = 50 ##-1 for unknown cell
+                    self.map_combined[i,j] = 1000 ##-1 for unknown cell
                 else:
                     self.map_combined[i,j] = 0
         
@@ -605,7 +605,7 @@ class Robot(pygame.sprite.Sprite):
     def get_time_seen(self,x,y):
         # print(self.map_combined[y,x])
         if self.map_combined_truth[y,x] > 1:
-            self.time_seen += 1
+            self.time_seen += self.map_combined_truth[y,x] -1
 
     def save_path(self,x,y):
         self.eval_path.append([x,y])
@@ -655,7 +655,7 @@ class Robot(pygame.sprite.Sprite):
 
             while not has_front:
 
-                self.front = self.frontier.get_frontiers(self.wallthreshold)
+                self.front = self.frontier.get_frontiers(self.wallthreshold, pos)
 
                 if self.front:
                     findfrontier = True
